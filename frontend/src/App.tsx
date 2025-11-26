@@ -1,6 +1,9 @@
 import React from 'react';
-import { HashRouter as Router, Routes, Route, Navigate, Outlet } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { AuthProvider } from './context/AuthContext';
 import Layout from './components/Layout';
+import AuthLayout from './components/AuthLayout';
+import RequireAuth from './components/RequireAuth';
 import Dashboard from './pages/Dashboard';
 import ReceiptsList from './pages/ReceiptsList';
 import UploadReceipt from './pages/UploadReceipt';
@@ -11,38 +14,36 @@ import Reports from './pages/Reports';
 import Login from './pages/Login';
 import SignUp from './pages/SignUp';
 
-// Layout Wrapper Component
-const AppLayout = () => {
-    return (
-        <Layout>
-            <Outlet />
-        </Layout>
-    );
-};
-
 const App: React.FC = () => {
     return (
-        <Router>
-            <Routes>
-                {/* Auth Routes */}
-                <Route path="/login" element={<Login />} />
-                <Route path="/signup" element={<SignUp />} />
+        <AuthProvider>
+            <Router>
+                <Routes>
+                    {/* Auth Routes with */}
+                    <Route element={<AuthLayout />}>
+                        <Route path="/login" element={<Login />} />
+                        <Route path="/signup" element={<SignUp />} />
+                    </Route>
 
-                {/* App Routes with Layout */}
-                <Route element={<AppLayout />}>
-                    <Route path="/" element={<Dashboard />} />
-                    <Route path="/receipts" element={<ReceiptsList />} />
-                    <Route path="/upload" element={<UploadReceipt />} />
-                    <Route path="/receipts/:id" element={<ReceiptDetail />} />
-                    <Route path="/categories" element={<Categories />} />
-                    <Route path="/settings" element={<Settings />} />
-                    <Route path="/reports" element={<Reports />} />
-                </Route>
+                    {/* Protected App Routes with Main Layout */}
+                    <Route element={<RequireAuth />}>
+                        <Route element={<Layout />}>
+                            <Route path="/" element={<Dashboard />} />
+                            <Route path="/receipts" element={<ReceiptsList />} />
+                            <Route path="/upload" element={<UploadReceipt />} />
+                            <Route path="/receipts/:id/edit" element={<UploadReceipt />} />
+                            <Route path="/receipts/:id" element={<ReceiptDetail />} />
+                            <Route path="/categories" element={<Categories />} />
+                            <Route path="/settings" element={<Settings />} />
+                            <Route path="/reports" element={<Reports />} />
+                        </Route>
+                    </Route>
 
-                {/* Fallback */}
-                <Route path="*" element={<Navigate to="/" replace />} />
-            </Routes>
-        </Router>
+                    {/* Fallback */}
+                    <Route path="*" element={<Navigate to="/" replace />} />
+                </Routes>
+            </Router>
+        </AuthProvider>
     );
 };
 

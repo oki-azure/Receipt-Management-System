@@ -27,6 +27,8 @@ const transactions: Transaction[] = [
 ];
 
 const Dashboard: React.FC = () => {
+    // const [filter, setFilter] = React.useState<'week' | 'month' | 'year'>('month');
+    
     return (
         <div className="flex flex-col gap-6">
             {/* Header */}
@@ -79,7 +81,7 @@ const Dashboard: React.FC = () => {
             {/* Charts Area */}
             <div className="grid grid-cols-1 gap-6 lg:grid-cols-5">
                 {/* Line Chart */}
-                <div className="rounded-xl border border-gray-200 bg-white p-6 lg:col-span-3">
+                <div className="rounded-xl border border-gray-200 bg-white p-6 lg:col-span-3 h-[300px]">
                     <h3 className="mb-4 text-lg font-semibold text-slate-900">Spending Over Time</h3>
                     <div className="h-[250px] w-full">
                         <ResponsiveContainer width="100%" height="100%">
@@ -104,7 +106,7 @@ const Dashboard: React.FC = () => {
                 </div>
 
                 {/* Donut Chart */}
-                <div className="flex flex-col justify-between rounded-xl border border-gray-200 bg-white p-6 lg:col-span-2">
+                <div className="flex flex-col justify-between rounded-xl border border-gray-200 bg-white p-6 lg:col-span-2 h-[300px]">
                     <h3 className="text-lg font-semibold text-slate-900">Spending by Category</h3>
                     <div className="relative flex h-[200px] w-full items-center justify-center">
                         <ResponsiveContainer width="100%" height="100%">
@@ -149,11 +151,11 @@ const Dashboard: React.FC = () => {
                     <table className="w-full text-left">
                         <thead className="border-b border-gray-200 text-xs font-semibold text-custom-gray">
                             <tr>
-                                <th className="px-4 py-3">Vendor</th>
-                                <th className="px-4 py-3 text-right">Amount</th>
-                                <th className="hidden px-4 py-3 sm:table-cell">Category</th>
-                                <th className="hidden px-4 py-3 md:table-cell">Date</th>
-                                <th className="px-4 py-3"></th>
+                                <th scope='col' className="px-4 py-3">Vendor</th>
+                                <th scope='col' className="px-4 py-3 text-right">Amount</th>
+                                <th scope='col' className="hidden px-4 py-3 sm:table-cell">Category</th>
+                                <th scope='col' className="hidden px-4 py-3 md:table-cell">Date</th>
+                                <th scope='col' className="px-4 py-3"></th>
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-gray-100">

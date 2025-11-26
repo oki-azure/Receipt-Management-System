@@ -1,10 +1,7 @@
 import React from 'react';
+import { Outlet } from 'react-router-dom';
 
-interface AuthLayoutProps {
-    children: React.ReactNode;
-}
-
-const AuthLayout: React.FC<AuthLayoutProps> = ({ children }) => {
+const AuthLayout: React.FC = () => {
     return (
         <div className="flex min-h-screen w-full bg-white">
             {/* Left Side: Hero Image */}
@@ -31,7 +28,7 @@ const AuthLayout: React.FC<AuthLayoutProps> = ({ children }) => {
 
             {/* Right Side: Form */}
             <div className="flex w-full flex-col justify-center px-6 lg:w-1/2 lg:px-24">
-                {children}
+                <Outlet />
             </div>
         </div>
     );

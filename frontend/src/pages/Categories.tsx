@@ -1,6 +1,8 @@
 import React from 'react';
 
 const Categories: React.FC = () => {
+    const [newCategory, setNewCategory] = React.useState('');
+    
     return (
         <div className="mx-auto max-w-7xl">
             <div className="mb-8">
@@ -17,6 +19,8 @@ const Categories: React.FC = () => {
                     <div className="mb-6 flex gap-4">
                         <input
                             type="text"
+                            value={newCategory}
+                            onChange={(e) => setNewCategory(e.target.value)}
                             placeholder="New Category Name"
                             className="flex-1 rounded-lg border-gray-300 text-sm focus:border-primary focus:ring-primary"
                         />

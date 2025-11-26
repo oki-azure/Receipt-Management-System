@@ -123,8 +123,7 @@ const Reports: React.FC = () => {
                                     <th className="px-6 py-3">Date</th>
                                     <th className="px-6 py-3">Vendor</th>
                                     <th className="px-6 py-3">Category</th>
-                                    <th className="px-6 py-3">Amount</th>
-                                    <th className="px-6 py-3">Status</th>
+                                    <th className="px-6 py-3 text-right">Amount</th>
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-gray-200">
@@ -132,15 +131,13 @@ const Reports: React.FC = () => {
                                     <td className="px-6 py-4">Oct 11, 2023</td>
                                     <td className="px-6 py-4 font-medium">Staples</td>
                                     <td className="px-6 py-4">Office Supplies</td>
-                                    <td className="px-6 py-4 font-medium">$125.50</td>
-                                    <td className="px-6 py-4"><span className="rounded-full bg-green-100 px-2 py-0.5 text-xs text-green-800">Approved</span></td>
+                                    <td className="px-6 py-4 text-right font-medium">$125.50</td>
                                 </tr>
                                 <tr className="hover:bg-gray-50">
                                     <td className="px-6 py-4">Oct 10, 2023</td>
                                     <td className="px-6 py-4 font-medium">Delta Airlines</td>
                                     <td className="px-6 py-4">Travel</td>
-                                    <td className="px-6 py-4 font-medium">$842.00</td>
-                                    <td className="px-6 py-4"><span className="rounded-full bg-green-100 px-2 py-0.5 text-xs text-green-800">Approved</span></td>
+                                    <td className="px-6 py-4 text-right font-medium">$842.00</td>
                                 </tr>
                             </tbody>
                         </table>
