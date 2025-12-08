@@ -9,7 +9,7 @@ const SignUp: React.FC = () => {
     const [confirmPassword, setConfirmPassword] = React.useState('');
     const [showPassword, setShowPassword] = React.useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = React.useState(false);
-    
+
     const { signup } = useAuth();
     const navigate = useNavigate();
 
@@ -25,7 +25,7 @@ const SignUp: React.FC = () => {
 
 
     return (
-        <div className="flex w-full max-w-md flex-col gap-8">
+        <div className="flex w-full max-w-md flex-col gap-8 rounded-2xl bg-white p-8 shadow-lg overflow-y-auto max-h-[90vh] scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
             <div className="flex flex-col gap-1">
                 <div className="flex items-center gap-2 text-primary mb-2">
                     <span className="material-symbols-outlined text-3xl">receipt_long</span>
@@ -45,7 +45,8 @@ const SignUp: React.FC = () => {
                         value={name}
                         onChange={(e) => setName(e.target.value)}
                         placeholder="Enter your full name"
-                        className="h-12 w-full rounded-lg border-gray-300 focus:border-primary focus:ring-primary"
+                        required
+                        className="h-12 w-full rounded-xl border-2 border-gray-700 bg-white px-4 text-slate-900 placeholder-gray-400 focus:border-black focus:ring-2 focus:ring-black transition"
                     />
                 </label>
 
@@ -56,54 +57,62 @@ const SignUp: React.FC = () => {
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
                         placeholder="Enter your email address"
-                        className="h-12 w-full rounded-lg border-gray-300 focus:border-primary focus:ring-primary"
+                        required
+                        className="h-12 w-full rounded-xl border-2 border-gray-700 bg-white px-4 text-slate-900 placeholder-gray-400 focus:border-black focus:ring-2 focus:ring-black transition"
                     />
                 </label>
 
-                <label className="mb-4 block text-sm font-medium text-slate-900">Password</label>
-                <div className="relative">
-                    <input
-                        type={showPassword ? 'text' : 'password'}
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                        placeholder="Create a password"
-                        className="h-12 w-full rounded-lg border-gray-300 pr-12 focus:border-primary focus:ring-primary"
-                    />
-                    <button
-                        type="button"
-                        onClick={() => setShowPassword(!showPassword)}
-                        className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400"
-                    >
-                        <span className="material-symbols-outlined">
-                            {showPassword ? 'visibility' : 'visibility_off'}
-                        </span>
-                    </button>
-                </div>
+                <label className="flex flex-col">
+                    <span className="mb-2 block text-sm font-medium text-slate-900">Password</span>
+                    <div className="relative">
+                        <input
+                            type={showPassword ? 'text' : 'password'}
+                            value={password}
+                            onChange={(e) => setPassword(e.target.value)}
+                            placeholder="Create a password"
+                            required
+                            className="h-12 w-full rounded-xl border-2 border-gray-700 bg-white px-4 text-slate-900 placeholder-gray-400 focus:border-black focus:ring-2 focus:ring-black transition"
+                        />
+                        <button
+                            type="button"
+                            onClick={() => setShowPassword(!showPassword)}
+                            className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400"
+                        >
+                            <span className="material-symbols-outlined">
+                                {showPassword ? 'visibility' : 'visibility_off'}
+                            </span>
+                        </button>
+                    </div>
+                </label>
 
-                <label className="mb-4 block text-sm font-medium text-slate-900">Confirm Password</label>
-                <div className="relative">
-                    <input
-                        type={showConfirmPassword ? 'text' : 'password'}
-                        value={confirmPassword}
-                        onChange={(e) => setConfirmPassword(e.target.value)}
-                        placeholder="Confirm Password"
-                        className="h-12 w-full rounded-lg border-gray-300 pr-12 focus:border-primary focus:ring-primary"
-                    />
-                    <button
-                        type="button"
-                        onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                        className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400"
-                    >
-                        <span className="material-symbols-outlined">
-                            {showConfirmPassword ? 'visibility' : 'visibility_off'}
-                        </span>
-                    </button>
-                </div>
+                <label className="flex flex-col">
+                    <span className="mb-2 block text-sm font-medium text-slate-900">Confirm Password</span>
+                    <div className="relative">
+                        <input
+                            type={showConfirmPassword ? 'text' : 'password'}
+                            value={confirmPassword}
+                            onChange={(e) => setConfirmPassword(e.target.value)}
+                            placeholder="Confirm Password"
+                            required
+                            className="h-12 w-full rounded-xl border-2 border-gray-700 bg-white px-4 text-slate-900 placeholder-gray-400 focus:border-black focus:ring-2 focus:ring-black transition"
+                        />
+                        <button
+                            type="button"
+                            onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                            className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400"
+                        >
+                            <span className="material-symbols-outlined">
+                                {showConfirmPassword ? 'visibility' : 'visibility_off'}
+                            </span>
+                        </button>
+                    </div>
+                </label>
 
                 <label className="flex items-start gap-2">
                     <input
                         type="checkbox"
-                        className="mt-1 rounded border-gray-300 text-primary focus:ring-primary"
+                        required
+                        className="mt-1 h-5 w-5 rounded-md border-2 border-gray-700 text-black focus:ring-2 focus:ring-black focus:outline-none transition"
                     />
                     <span className="text-sm text-gray-500">
                         By creating an account, you agree to our{' '}
@@ -117,7 +126,7 @@ const SignUp: React.FC = () => {
                     </span>
                 </label>
 
-                <button className="mt-2 h-12 rounded-lg bg-primary font-bold text-white hover:bg-primary/90">
+                <button className="mt-2 h-12 rounded-lg bg-black px-6 font-bold text-white hover:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-black transition">
                     Create Account
                 </button>
             </form>
@@ -129,7 +138,7 @@ const SignUp: React.FC = () => {
                 <div className="relative bg-white px-4 text-sm text-gray-500">OR</div>
             </div>
 
-            <button className="flex h-12 items-center justify-center gap-2 rounded-lg border border-gray-300 font-medium text-slate-900 hover:bg-gray-50">
+            <button className="flex h-12 w-full items-center justify-center gap-3 rounded-lg border-2 border-gray-300 bg-white px-4 font-semibold text-gray-700 shadow-sm hover:border-gray-400 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-400 transition">
                 <img
                     src="https://www.svgrepo.com/show/475656/google-color.svg"
                     alt="Google"

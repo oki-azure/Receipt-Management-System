@@ -10,7 +10,6 @@ export interface Category {
     id: string;
     name: string;
     color: string;
-    count: number;
 }
 
 export interface Tag {
@@ -25,7 +24,8 @@ export interface Receipt {
     fileUrl: string;
     uploadedAt: string;
     notes?: string;
-    tags?: Tag[];
+    tags?: string[];
+    imageUrl?: string;
 }
 
 export interface User {
@@ -43,4 +43,18 @@ export interface AuthResponse {
 export interface ApiError {
     message: string;
     statusCode?: number;
+}
+
+export interface StatsCardProps {
+    label: string;
+    value: string | number;
+    change: number; // percentage change
+    comparisonLabel?: string; // e.g. "vs. last month"
+}
+
+export interface PaginationProps {
+    currentPage: number;
+    totalItems: number;
+    itemsPerPage: number;
+    onPageChange: (page: number) => void;
 }

@@ -1,15 +1,23 @@
-import React, { useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { getReceipts } from '../utils/receipts';
 import { getTransactionById } from '../utils/transactions';
-import { type Receipt, type Transaction } from '../types';
+import { type Receipt, type Transaction, type Category } from '../types';
 import { deleteReceipt } from '../utils/receipts';
 import { deleteTransaction } from '../utils/transactions';
+import Pagination from '../components/ReceiptsListPagination';
 
 const ReceiptsList: React.FC = () => {
     const [selected, setSelected] = useState<string[]>([]);
     const [searchTerm, setSearchTerm] = useState('');
     const [receipts, setReceipts] = useState<Receipt[]>(getReceipts());
+    const [currentPage, setCurrentPage] = useState(1);
+    const itemsPerPage = 10;
+    const [dateRange, setDateRange] = useState<[Date | null, Date | null]>([null, null]);
+    const [category, setCategory] = useState<string | null>(null);
+    const [showDateDropdown, setShowDateDropdown] = useState(false);
+    const [showCategoryDropdown, setShowCategoryDropdown] = useState(false);
+    const [categories, setCategories] = useState<Category[]>([]);
 
     // join each receipt with its transaction
     const joinedReceipts = receipts.map((receipt) => {
@@ -23,11 +31,22 @@ const ReceiptsList: React.FC = () => {
         };
     });
 
-    const filteredReceipts = joinedReceipts.filter(r =>
-        r.vendor.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        r.category.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        r.amount.toString().includes(searchTerm)
-    );
+    const filteredReceipts = joinedReceipts.filter((r) => {
+        const matchesSearch =
+            r.vendor.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            r.category.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            r.amount.toString().includes(searchTerm);
+
+        const receiptDate = r.date ? new Date(r.date) : null;
+        const inDateRange =
+            (!dateRange[0] || (receiptDate && receiptDate >= dateRange[0])) &&
+            (!dateRange[1] || (receiptDate && receiptDate <= dateRange[1]));
+
+        const inCategory = !category || r.category === category;
+
+        return matchesSearch && inDateRange && inCategory;
+    });
+
 
     const toggleSelection = (id: string) => {
         if (selected.includes(id)) {
@@ -61,6 +80,32 @@ const ReceiptsList: React.FC = () => {
 
     };
 
+
+    const totalItems = filteredReceipts.length;
+    const totalPages = Math.max(1, Math.ceil(totalItems / itemsPerPage));
+
+    useEffect(() => {
+        setCurrentPage((p) => Math.min(p, totalPages));
+    }, [totalPages]);
+
+    const paginatedReceipts = useMemo(() => {
+        const start = (currentPage - 1) * itemsPerPage;
+        const end = start + itemsPerPage;
+        return filteredReceipts.slice(start, end);
+    }, [filteredReceipts, currentPage]);
+
+    useEffect(() => {
+        const stored = localStorage.getItem("categories");
+        if (stored) {
+            try {
+                setCategories(JSON.parse(stored));
+            } catch (err) {
+                console.error("Failed to parse categories from LocalStorage", err);
+            }
+        }
+    }, []);
+
+
     return (
         <div className="flex flex-col gap-6">
             {/* Header */}
@@ -88,13 +133,74 @@ const ReceiptsList: React.FC = () => {
                             className="ml-2 w-full bg-transparent border-none text-sm text-slate-900 placeholder-gray-500 focus:ring-0"
                         />
                     </div>
-                    <div className="flex gap-2 overflow-x-auto">
-                        <button className="flex items-center gap-1 rounded-lg bg-gray-100 px-3 py-1.5 text-sm font-medium text-slate-700 hover:bg-gray-200">
-                            Date Range <span className="material-symbols-outlined text-sm">expand_more</span>
-                        </button>
-                        <button className="flex items-center gap-1 rounded-lg bg-gray-100 px-3 py-1.5 text-sm font-medium text-slate-700 hover:bg-gray-200">
-                            Category <span className="material-symbols-outlined text-sm">expand_more</span>
-                        </button>
+
+                    <div className="flex gap-2 overflow-visible">
+                        {/* Date Range Filter */}
+                        <div className="relative">
+                            <button
+                                onClick={() => setShowDateDropdown(!showDateDropdown)}
+                                className="flex items-center gap-1 rounded-lg bg-gray-100 px-3 py-1.5 text-sm font-medium text-slate-700 hover:bg-gray-200"
+                            >
+                                Date Range <span className="material-symbols-outlined text-sm">expand_more</span>
+                            </button>
+                            {showDateDropdown && (
+                                <div className="absolute left-0 top-full mt-2 w-56 rounded-lg border border-gray-200 bg-white shadow-lg p-3 z-50">
+                                    <label className="block text-xs text-gray-500 mb-1">Start Date</label>
+                                    <input
+                                        type="date"
+                                        className="w-full border rounded px-2 py-1 text-sm mb-2"
+                                        onChange={(e) => setDateRange([new Date(e.target.value), dateRange[1]])}
+                                    />
+                                    <label className="block text-xs text-gray-500 mb-1">End Date</label>
+                                    <input
+                                        type="date"
+                                        className="w-full border rounded px-2 py-1 text-sm"
+                                        onChange={(e) => setDateRange([dateRange[0], new Date(e.target.value)])}
+                                    />
+                                </div>
+                            )}
+                        </div>
+
+                        {/* Category Filter */}
+                        <div className="relative">
+                            <button
+                                onClick={() => setShowCategoryDropdown(!showCategoryDropdown)}
+                                className="flex items-center gap-1 rounded-lg bg-gray-100 px-3 py-1.5 text-sm font-medium text-slate-700 hover:bg-gray-200"
+                            >
+                                Category <span className="material-symbols-outlined text-sm">expand_more</span>
+                            </button>
+                            {showCategoryDropdown && (
+                                <div className="absolute left-0 top-full mt-2 w-40 rounded-lg border border-gray-200 bg-white shadow-lg p-2 z-50">
+                                    {categories.map((cat) => (
+                                        <button
+                                            key={cat.id}
+                                            onClick={() => {
+                                                setCategory(cat.name);
+                                                setShowCategoryDropdown(false);
+                                            }}
+                                            className={`block w-full text-left px-2 py-1 text-sm rounded hover:bg-gray-100 ${category === cat.name ? "bg-primary/10 text-primary" : ""
+                                                }`}
+                                            style={{ color: cat.color }} // optional: use category color
+                                        >
+                                            {cat.name}
+                                        </button>
+                                    ))}
+                                </div>
+                            )}
+                        </div>
+                        {/* Clear Filters */}
+                        {(dateRange[0] || dateRange[1] || category || searchTerm) && (
+                            <button
+                                onClick={() => {
+                                    setDateRange([null, null]);
+                                    setCategory(null);
+                                    setSearchTerm("");
+                                }}
+                                className="flex items-center gap-1 rounded-lg bg-gray-100 px-3 py-1.5 text-sm font-medium text-slate-700 hover:bg-gray-200"
+                            >
+                                Clear Filters <span className="material-symbols-outlined text-sm">close</span>
+                            </button>
+                        )}
                     </div>
                 </div>
 
@@ -131,37 +237,36 @@ const ReceiptsList: React.FC = () => {
                         </thead>
 
                         <tbody className="divide-y divide-gray-100">
-                            {filteredReceipts.map((receipt) => (
-                                <tr key={receipt.id} className="hover:bg-gray-50">
-                                    <td className="px-6 py-4">
-                                        <input
-                                            type="checkbox"
-                                            checked={selected.includes(receipt.id)}
-                                            onChange={() => toggleSelection(receipt.id)}
-                                            className="rounded border-gray-300 text-primary focus:ring-primary"
-                                        />
-                                    </td>
-                                    <td className="px-6 py-4 font-medium text-slate-900 whitespace-nowrap">
-                                        {receipt.date}
-                                    </td>
-                                    <td className="px-6 py-4 text-slate-600">{receipt.vendor}</td>
-                                    <td className="px-6 py-4 text-slate-600">{receipt.category}</td>
-                                    <td className="px-6 py-4 text-right font-mono text-slate-900">
-                                        ${receipt.amount.toFixed(2)}
-                                    </td>
-                                    <td className="px-6 py-4 text-right">
-                                        <Link
-                                            to={`/receipts/${receipt.id}`}
-                                            className="text-gray-400 hover:text-slate-900"
-                                        >
-                                            <span className="material-symbols-outlined">more_horiz</span>
-                                        </Link>
-                                    </td>
-                                </tr>
-                            ))}
-
-                            {/* Empty state */}
-                            {filteredReceipts.length === 0 && (
+                            {paginatedReceipts.length > 0 ? (
+                                paginatedReceipts.map((receipt) => (
+                                    <tr key={receipt.id} className="hover:bg-gray-50">
+                                        <td className="px-6 py-4">
+                                            <input
+                                                type="checkbox"
+                                                checked={selected.includes(receipt.id)}
+                                                onChange={() => toggleSelection(receipt.id)}
+                                                className="rounded border-gray-300 text-primary focus:ring-primary"
+                                            />
+                                        </td>
+                                        <td className="px-6 py-4 font-medium text-slate-900 whitespace-nowrap">
+                                            {receipt.date}
+                                        </td>
+                                        <td className="px-6 py-4 text-slate-600">{receipt.vendor}</td>
+                                        <td className="px-6 py-4 text-slate-600">{receipt.category}</td>
+                                        <td className="px-6 py-4 text-right font-mono text-slate-900">
+                                            ${receipt.amount.toFixed(2)}
+                                        </td>
+                                        <td className="px-6 py-4 text-right">
+                                            <Link
+                                                to={`/receipts/${receipt.id}`}
+                                                className="text-gray-400 hover:text-slate-900"
+                                            >
+                                                <span className="material-symbols-outlined">more_horiz</span>
+                                            </Link>
+                                        </td>
+                                    </tr>
+                                ))
+                            ) : (
                                 <tr>
                                     <td
                                         colSpan={6}
@@ -178,18 +283,12 @@ const ReceiptsList: React.FC = () => {
                 </div>
 
                 {/* Pagination */}
-                <div className="flex items-center justify-between border-t border-gray-200 p-4">
-                    <p className="text-sm text-gray-500">Showing <span className="font-semibold text-slate-900">1-10</span> of <span className="font-semibold text-slate-900">1000</span></p>
-                    <div className="flex items-center gap-1">
-                        <button className="rounded-l border border-gray-300 px-3 py-1 text-sm hover:bg-gray-50">Previous</button>
-                        <button className="border border-primary bg-primary/10 px-3 py-1 text-sm font-medium text-primary">1</button>
-                        <button className="border border-gray-300 px-3 py-1 text-sm hover:bg-gray-50">2</button>
-                        <button className="border border-gray-300 px-3 py-1 text-sm hover:bg-gray-50">3</button>
-                        <button className="border border-gray-300 px-3 py-1 text-sm">...</button>
-                        <button className="border border-gray-300 px-3 py-1 text-sm hover:bg-gray-50">100</button>
-                        <button className="rounded-r border border-gray-300 px-3 py-1 text-sm hover:bg-gray-50">Next</button>
-                    </div>
-                </div>
+                <Pagination
+                    currentPage={currentPage}
+                    totalItems={totalItems}
+                    itemsPerPage={itemsPerPage}
+                    onPageChange={setCurrentPage}
+                />
             </div>
         </div>
     );

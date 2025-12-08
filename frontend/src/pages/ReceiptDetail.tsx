@@ -1,7 +1,8 @@
-import React from 'react';
+import React, { useRef } from 'react';
 import { Link, useParams, useNavigate } from 'react-router-dom';
 import { getReceiptById, deleteReceipt } from '../utils/receipts';
 import { getTransactionById, deleteTransaction } from '../utils/transactions';
+
 
 const ReceiptDetail: React.FC = () => {
     const { id } = useParams();
@@ -12,6 +13,8 @@ const ReceiptDetail: React.FC = () => {
 
     const receipt = id ? getReceiptById(id) : null;
     const transaction = receipt ? getTransactionById(receipt.transactionId) : null;
+
+    const containerRef = useRef<HTMLDivElement>(null);
 
     if (!receipt || !transaction) {
         return (
@@ -29,6 +32,30 @@ const ReceiptDetail: React.FC = () => {
         deleteTransaction(receipt.transactionId);
         navigate('/receipts');
     };
+
+    const handleMouseDown = (e: React.MouseEvent) => {
+        if (!containerRef.current) return;
+        const startX = e.pageX - containerRef.current.offsetLeft;
+        const startY = e.pageY - containerRef.current.offsetTop;
+        const scrollLeft = containerRef.current.scrollLeft;
+        const scrollTop = containerRef.current.scrollTop;
+
+        const onMouseMove = (moveEvent: MouseEvent) => {
+            const x = moveEvent.pageX - containerRef.current!.offsetLeft;
+            const y = moveEvent.pageY - containerRef.current!.offsetTop;
+            containerRef.current!.scrollLeft = scrollLeft - (x - startX);
+            containerRef.current!.scrollTop = scrollTop - (y - startY);
+        };
+
+        const onMouseUp = () => {
+            document.removeEventListener("mousemove", onMouseMove);
+            document.removeEventListener("mouseup", onMouseUp);
+        };
+
+        document.addEventListener("mousemove", onMouseMove);
+        document.addEventListener("mouseup", onMouseUp);
+    };
+
 
     return (
         <div className="mx-auto max-w-6xl">
@@ -131,13 +158,27 @@ const ReceiptDetail: React.FC = () => {
                                 </a>
                             </div>
                         </div>
+
                         <div className="flex items-center justify-center rounded-lg bg-gray-100 p-4">
-                            <img
-                                src={receipt.fileUrl}
-                                alt="Receipt"
-                                className="max-h-[600px] w-auto object-contain shadow-lg"
-                                style={{ transform: `scale(${scale}) rotate(${rotation}deg)` }}
-                            />
+                            {receipt.fileUrl?.toLowerCase().endsWith(".pdf") ? (
+                                // PDF preview: icon + filename
+                                <div className="flex flex-col items-center">
+                                    <span className="material-symbols-outlined text-6xl text-primary">
+                                        picture_as_pdf
+                                    </span>
+                                    <p className="mt-2 text-sm text-gray-600">{receipt.fileUrl}</p>
+                                </div>
+                            ) : (
+                                // Image preview
+                                <div className='flex items-center justify-center rounded-lg bg-gray-100 p-4 max-h-[600px] overflow-auto' ref={containerRef} onMouseDown={handleMouseDown}>
+                                    <img
+                                        src={receipt.imageUrl}
+                                        alt="Receipt"
+                                        className="max-h-[600px] w-auto object-contain shadow-lg"
+                                        style={{ transform: `scale(${scale}) rotate(${rotation}deg)`, transformOrigin: "center center" }}
+                                    />
+                                </div>
+                            )}
                         </div>
                     </div>
                 </div>

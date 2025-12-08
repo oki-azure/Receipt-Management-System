@@ -1,34 +1,101 @@
-import React from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell, PieChart, Pie } from 'recharts';
 import { Link } from 'react-router-dom';
 import { type Transaction } from '../types';
+import { getTransactions } from '../utils/transactions';
+import { DashboardFilter } from '../components/Dashboard/DashboardFilter';
+import { StatsCard } from '../components/Dashboard/StatsCard';
 
-const data = [
-    { name: 'Week 1', value: 1200 },
-    { name: 'Week 2', value: 2100 },
-    { name: 'Week 3', value: 800 },
-    { name: 'Week 4', value: 1600 },
-    { name: 'Week 5', value: 2400 },
-];
 
-const pieData = [
-    { name: 'Groceries', value: 400, color: '#60A5FA' },
-    { name: 'Travel', value: 300, color: '#A78BFA' },
-    { name: 'Utilities', value: 300, color: '#4ADE80' },
-    { name: 'Dining', value: 200, color: '#FBBF24' },
-];
-
-const transactions: Transaction[] = [
-    { id: '1', vendor: 'Starbucks', amount: 5.75, category: 'Dining', date: 'Oct 26, 2023', status: 'Approved' },
-    { id: '2', vendor: 'Amazon', amount: 42.99, category: 'Shopping', date: 'Oct 25, 2023', status: 'Pending' },
-    { id: '3', vendor: "Trader Joe's", amount: 88.14, category: 'Groceries', date: 'Oct 24, 2023', status: 'Approved' },
-    { id: '4', vendor: 'United Airlines', amount: 345.00, category: 'Travel', date: 'Oct 22, 2023', status: 'Reimbursed' },
-    { id: '5', vendor: 'PG&E', amount: 112.30, category: 'Utilities', date: 'Oct 20, 2023', status: 'Approved' },
-];
 
 const Dashboard: React.FC = () => {
     // const [filter, setFilter] = React.useState<'week' | 'month' | 'year'>('month');
-    
+    const [transactions, setTransactions] = useState<Transaction[]>([]);
+    const [totalSpending, setTotalSpending] = useState<number>(0);
+    const [monthlySpending, setMonthlySpending] = useState<number>(0); // this month only
+    const [spendingChange, setSpendingChange] = useState<number>(0);
+    const [totalReceipts, setTotalReceipts] = useState<number>(0); // this month count
+    const [receiptsChange, setReceiptsChange] = useState<number>(0);
+    const [averageTransaction, setAverageTransaction] = useState<number>(0);
+    const [averageChange, setAverageChange] = useState<number>(0);
+    const [activeFilter, setActiveFilter] = useState<"week" | "month" | "year" | "all">("month");
+
+
+
+    const filterByMonth = (transactions: Transaction[], month: number, year: number) => {
+        return transactions.filter(txn => {
+            const d = new Date(txn.date);
+            return d.getMonth() === month && d.getFullYear() === year;
+        });
+    };
+
+    useEffect(() => {
+        setTransactions(getTransactions());
+    }, []);
+
+    // Transform Data for Line Chart
+    const lineData = useMemo(() => {
+        const grouped: Record<string, number> = {};
+
+        transactions.forEach((t) => {
+            const date = new Date(t.date).toLocaleDateString("en-US", { month: "short", day: "numeric" });
+            grouped[date] = (grouped[date] || 0) + t.amount;
+        });
+
+        return Object.entries(grouped).map(([name, value]) => ({ name, value }));
+    }, [transactions]);
+
+    // Transform Data for Pie Chart
+    const pieData = useMemo(() => {
+        const grouped: Record<string, number> = {};
+
+        transactions.forEach((t) => {
+            grouped[t.category] = (grouped[t.category] || 0) + t.amount;
+        });
+
+        const colors = ["#137fec", "#16a34a", "#f59e0b", "#dc2626", "#617589"];
+
+        return Object.entries(grouped).map(([name, value], i) => ({
+            name,
+            value,
+            color: colors[i % colors.length],
+        }));
+    }, [transactions]);
+
+    useEffect(() => {
+        const sum = transactions.reduce((acc, txn) => acc + (txn.amount ?? 0), 0);
+        setTotalSpending(sum);
+
+        // Month boundaries
+        const now = new Date();
+        const thisMonth = now.getMonth();
+        const thisYear = now.getFullYear();
+        const lastMonth = thisMonth === 0 ? 11 : thisMonth - 1;
+        const lastMonthYear = thisMonth === 0 ? thisYear - 1 : thisYear;
+
+        const thisMonthTxns = filterByMonth(transactions, thisMonth, thisYear);
+        const lastMonthTxns = filterByMonth(transactions, lastMonth, lastMonthYear);
+
+        // Spending
+        const thisSpending = thisMonthTxns.reduce((acc, t) => acc + (t.amount ?? 0), 0);
+        const lastSpending = lastMonthTxns.reduce((acc, t) => acc + (t.amount ?? 0), 0);
+        setMonthlySpending(thisSpending);
+        setSpendingChange(lastSpending > 0 ? ((thisSpending - lastSpending) / lastSpending) * 100 : 0);
+
+        // Receipts (count)
+        const thisReceipts = thisMonthTxns.length;
+        const lastReceipts = lastMonthTxns.length;
+        setTotalReceipts(thisReceipts);
+        setReceiptsChange(lastReceipts > 0 ? ((thisReceipts - lastReceipts) / lastReceipts) * 100 : 0);
+
+        // Average transaction
+        const thisAvg = thisMonthTxns.length > 0 ? thisSpending / thisMonthTxns.length : 0;
+        const lastAvg = lastMonthTxns.length > 0 ? lastSpending / lastMonthTxns.length : 0;
+        setAverageTransaction(thisAvg);
+        setAverageChange(lastAvg > 0 ? ((thisAvg - lastAvg) / lastAvg) * 100 : 0);
+    }, [transactions]);
+
+
     return (
         <div className="flex flex-col gap-6">
             {/* Header */}
@@ -38,12 +105,10 @@ const Dashboard: React.FC = () => {
                     <p className="text-custom-gray">Here's a summary of your spending activity.</p>
                 </div>
                 <div className="flex items-center gap-4">
-                    <div className="hidden rounded-lg border border-gray-200 bg-white p-1 md:flex">
-                        <button className="rounded px-3 py-1 text-sm font-medium text-custom-gray hover:bg-gray-50">This Week</button>
-                        <button className="rounded bg-primary/10 px-3 py-1 text-sm font-semibold text-primary">This Month</button>
-                        <button className="rounded px-3 py-1 text-sm font-medium text-custom-gray hover:bg-gray-50">This Year</button>
+                    <div className="space-y-6">
+                        <DashboardFilter active={activeFilter} onChange={setActiveFilter} />
                     </div>
-                    <Link to="/upload" className="flex items-center gap-2 rounded-lg bg-success px-4 py-2 text-sm font-bold text-white hover:bg-success/90">
+                    <Link to="/upload" className="flex items-center gap-2 rounded-lg bg-success px-4 py-2 text-sm font-bold text-black hover:bg-success/90">
                         <span className="material-symbols-outlined">add_circle</span>
                         Upload Receipt
                     </Link>
@@ -54,26 +119,43 @@ const Dashboard: React.FC = () => {
             <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
                 <div className="rounded-xl border border-gray-200 bg-white p-6">
                     <p className="text-sm font-medium text-custom-gray">Total Spending (This Month)</p>
-                    <p className="mt-2 text-3xl font-bold text-slate-900">$4,782.50</p>
-                    <div className="mt-1 flex items-center gap-1 text-sm font-medium text-success">
-                        <span className="material-symbols-outlined text-base">arrow_upward</span>
-                        5.2% vs. last month
+                    <p className="mt-2 text-3xl font-bold text-slate-900">${monthlySpending.toFixed(2)}</p>
+                    <div
+                        className={`mt-1 flex items-center gap-1 text-sm font-medium ${spendingChange >= 0 ? 'text-success' : 'text-danger'
+                            }`}
+                    >
+                        <span className="material-symbols-outlined text-base">
+                            {spendingChange >= 0 ? 'arrow_upward' : 'arrow_downward'}
+                        </span>
+                        {spendingChange.toFixed(1)}% vs. last month
                     </div>
                 </div>
+
                 <div className="rounded-xl border border-gray-200 bg-white p-6">
                     <p className="text-sm font-medium text-custom-gray">Total Receipts</p>
-                    <p className="mt-2 text-3xl font-bold text-slate-900">124</p>
-                    <div className="mt-1 flex items-center gap-1 text-sm font-medium text-success">
-                        <span className="material-symbols-outlined text-base">arrow_upward</span>
-                        +12 vs. last month
+                    <p className="mt-2 text-3xl font-bold text-slate-900">{totalReceipts}</p>
+                    <div
+                        className={`mt-1 flex items-center gap-1 text-sm font-medium ${receiptsChange >= 0 ? 'text-success' : 'text-danger'
+                            }`}
+                    >
+                        <span className="material-symbols-outlined text-base">
+                            {receiptsChange >= 0 ? 'arrow_upward' : 'arrow_downward'}
+                        </span>
+                        {receiptsChange.toFixed(1)}% vs. last month
                     </div>
                 </div>
+
                 <div className="rounded-xl border border-gray-200 bg-white p-6">
                     <p className="text-sm font-medium text-custom-gray">Average Transaction Value</p>
-                    <p className="mt-2 text-3xl font-bold text-slate-900">$38.57</p>
-                    <div className="mt-1 flex items-center gap-1 text-sm font-medium text-danger">
-                        <span className="material-symbols-outlined text-base">arrow_downward</span>
-                        -1.5% vs. last month
+                    <p className="mt-2 text-3xl font-bold text-slate-900">${averageTransaction.toFixed(2)}</p>
+                    <div
+                        className={`mt-1 flex items-center gap-1 text-sm font-medium ${averageChange >= 0 ? 'text-success' : 'text-danger'
+                            }`}
+                    >
+                        <span className="material-symbols-outlined text-base">
+                            {averageChange >= 0 ? 'arrow_upward' : 'arrow_downward'}
+                        </span>
+                        {averageChange.toFixed(1)}% vs. last month
                     </div>
                 </div>
             </div>
@@ -83,9 +165,9 @@ const Dashboard: React.FC = () => {
                 {/* Line Chart */}
                 <div className="rounded-xl border border-gray-200 bg-white p-6 lg:col-span-3 h-[300px]">
                     <h3 className="mb-4 text-lg font-semibold text-slate-900">Spending Over Time</h3>
-                    <div className="h-[250px] w-full">
+                    <div className="h-[250px] w-full pb-4">
                         <ResponsiveContainer width="100%" height="100%">
-                            <LineChart data={data}>
+                            <LineChart data={lineData}>
                                 <defs>
                                     <linearGradient id="colorValue" x1="0" y1="0" x2="0" y2="1">
                                         <stop offset="5%" stopColor="#137fec" stopOpacity={0.1} />
@@ -106,7 +188,7 @@ const Dashboard: React.FC = () => {
                 </div>
 
                 {/* Donut Chart */}
-                <div className="flex flex-col justify-between rounded-xl border border-gray-200 bg-white p-6 lg:col-span-2 h-[300px]">
+                <div className="flex flex-col gap-4 rounded-xl border border-gray-200 bg-white p-6 lg:col-span-2">
                     <h3 className="text-lg font-semibold text-slate-900">Spending by Category</h3>
                     <div className="relative flex h-[200px] w-full items-center justify-center">
                         <ResponsiveContainer width="100%" height="100%">
@@ -127,7 +209,7 @@ const Dashboard: React.FC = () => {
                         </ResponsiveContainer>
                         <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
                             <span className="text-xs text-gray-500">Total</span>
-                            <span className="text-xl font-bold text-slate-900">$4.7k</span>
+                            <span className="text-xl font-bold text-slate-900">${totalSpending.toLocaleString()}</span>
                         </div>
                     </div>
                     <div className="grid grid-cols-2 gap-4 text-sm">
@@ -152,24 +234,28 @@ const Dashboard: React.FC = () => {
                         <thead className="border-b border-gray-200 text-xs font-semibold text-custom-gray">
                             <tr>
                                 <th scope='col' className="px-4 py-3">Vendor</th>
-                                <th scope='col' className="px-4 py-3 text-right">Amount</th>
+                                <th scope='col' className="px-4 py-3">Amount</th>
                                 <th scope='col' className="hidden px-4 py-3 sm:table-cell">Category</th>
                                 <th scope='col' className="hidden px-4 py-3 md:table-cell">Date</th>
                                 <th scope='col' className="px-4 py-3"></th>
                             </tr>
                         </thead>
-                        <tbody className="divide-y divide-gray-100">
-                            {transactions.map((tx) => (
-                                <tr key={tx.id} className="group hover:bg-gray-50">
-                                    <td className="px-4 py-3 text-sm font-medium text-slate-900">{tx.vendor}</td>
-                                    <td className="px-4 py-3 text-right text-sm font-medium text-slate-900">${tx.amount.toFixed(2)}</td>
-                                    <td className="hidden px-4 py-3 text-sm text-gray-500 sm:table-cell">{tx.category}</td>
-                                    <td className="hidden px-4 py-3 text-sm text-gray-500 md:table-cell">{tx.date}</td>
-                                    <td className="px-4 py-3 text-right">
-                                        <Link to={`/receipts/${tx.id}`} className="text-sm font-semibold text-primary hover:underline">View</Link>
-                                    </td>
+                        <tbody className="divide-y divide-gray-200">
+                            {transactions.map((transaction) => (
+                                <tr key={transaction.id}>
+                                    <td className="px-4 py-2 text-sm text-gray-700">{transaction.vendor}</td>
+                                    <td className="px-4 py-2 text-sm text-gray-700">{transaction.amount}</td>
+                                    <td className="px-4 py-2 text-sm text-gray-700">{transaction.date}</td>
+                                    <td className="px-4 py-2 text-sm text-gray-700">{transaction.category}</td>
                                 </tr>
                             ))}
+                            {transactions.length === 0 && (
+                                <tr>
+                                    <td colSpan={4} className="px-4 py-6 text-center text-sm text-gray-400">
+                                        No receipts yet
+                                    </td>
+                                </tr>
+                            )}
                         </tbody>
                     </table>
                 </div>

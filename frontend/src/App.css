@@ -1,1 +1,60 @@
 @import "tailwindcss";
+
+/* Explicit custom utilities */
+@layer utilities {
+    .bg-success {
+        background-color: #16a34a;
+    }
+
+    .bg-warning {
+        background-color: #f59e0b;
+    }
+
+    .bg-danger {
+        background-color: #dc2626;
+    }
+
+    .bg-primary {
+        background-color: #137fec;
+    }
+
+    .bg-background-light {
+        background-color: #f6f7f8;
+    }
+
+    .bg-background-dark {
+        background-color: #101922;
+    }
+
+    .bg-card-light {
+        background-color: #ffffff;
+    }
+
+    .bg-card-dark {
+        background-color: #182431;
+    }
+
+    .text-success {
+        color: #16a34a;
+    }
+
+    .text-warning {
+        color: #f59e0b;
+    }
+
+    .text-danger {
+        color: #dc2626;
+    }
+
+    .text-primary {
+        color: #137fec;
+    }
+
+    .text-custom-gray {
+        color: #617589;
+    }
+
+    .font-display {
+        font-family: "Inter", sans-serif;
+    }
+}

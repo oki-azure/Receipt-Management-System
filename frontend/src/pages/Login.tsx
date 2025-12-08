@@ -22,14 +22,17 @@ const Login: React.FC = () => {
 
 
     return (
-        <div className="flex w-full max-w-md flex-col gap-8">
+        <div className="flex w-full max-w-md flex-col gap-8 rounded-2xl bg-white p-8 shadow-lg overflow-y-auto max-h-[90vh] scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
+            {/* Header */}
             <div className="flex flex-col gap-2">
                 <h2 className="text-4xl font-black leading-tight text-slate-900">Welcome Back!</h2>
                 <p className="text-base text-custom-gray">Sign in to your account to continue.</p>
             </div>
 
+            {/* Form */}
             <form onSubmit={handleLogin} className="flex w-full flex-col gap-6">
                 <div className="flex flex-col gap-4">
+                    {/* Email */}
                     <label className="flex flex-col">
                         <span className="mb-2 text-base font-medium text-slate-900">Email Address</span>
                         <input
@@ -37,9 +40,12 @@ const Login: React.FC = () => {
                             value={email}
                             onChange={(e) => setEmail(e.target.value)}
                             placeholder="Enter your email"
-                            className="h-14 rounded-lg border-gray-300 px-4 text-base focus:border-primary focus:ring-primary"
+                            required
+                            className="h-12 w-full rounded-xl border-2 border-gray-700 bg-white px-4 text-slate-900 placeholder-gray-400 focus:border-black focus:ring-2 focus:ring-black focus:ring-offset-1 transition"
                         />
                     </label>
+
+                    {/* Password */}
                     <label className="flex flex-col">
                         <span className="mb-2 text-base font-medium text-slate-900">Password</span>
                         <div className="relative">
@@ -48,7 +54,8 @@ const Login: React.FC = () => {
                                 value={password}
                                 onChange={(e) => setPassword(e.target.value)}
                                 placeholder="Enter your password"
-                                className="h-14 w-full rounded-lg border-gray-300 px-4 pr-12 text-base focus:border-primary focus:ring-primary"
+                                required
+                                className="h-12 w-full rounded-xl border-2 border-gray-700 bg-white px-4 pr-12 text-slate-900 placeholder-gray-400 focus:border-black focus:ring-2 focus:ring-black focus:ring-offset-1 transition"
                             />
                             <button
                                 type="button"
@@ -63,11 +70,12 @@ const Login: React.FC = () => {
                     </label>
                 </div>
 
+                {/* Remember me + Forgot password */}
                 <div className="flex items-center justify-between">
                     <label className="flex items-center gap-2">
                         <input
                             type="checkbox"
-                            className="rounded border-gray-300 text-primary focus:ring-primary"
+                            className="h-5 w-5 rounded-md border-2 border-gray-700 text-black focus:ring-2 focus:ring-black focus:outline-none transition"
                         />
                         <span className="text-sm font-medium text-slate-900">Remember me</span>
                     </label>
@@ -76,16 +84,18 @@ const Login: React.FC = () => {
                     </a>
                 </div>
 
+                {/* Submit button */}
                 <button
                     type="submit"
-                    className="h-14 rounded-lg bg-primary text-base font-bold text-white hover:bg-primary/90"
+                    className="h-12 rounded-lg bg-black px-6 font-bold text-white shadow-md hover:bg-gray-900 hover:scale-[1.02] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-black transition-transform"
                 >
                     Log In
                 </button>
             </form>
 
+            {/* Footer */}
             <div className="text-center text-sm text-custom-gray">
-                Don't have an account?{' '}
+                Don&apos;t have an account?{' '}
                 <Link to="/signup" className="font-semibold text-primary hover:underline">
                     Sign Up
                 </Link>

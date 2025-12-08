@@ -36,7 +36,7 @@ const Layout: React.FC = () => {
             {/* Sidebar */}
             <aside className="hidden w-64 flex-col border-r border-gray-200 bg-white lg:flex">
                 <div className="flex items-center gap-3 px-6 py-6">
-                    <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary text-white">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary text-black">
                         <span className="material-symbols-outlined text-2xl">receipt_long</span>
                     </div>
                     <h1 className="text-xl font-bold text-slate-900">ReceiptManager</h1>
@@ -48,8 +48,8 @@ const Layout: React.FC = () => {
                             key={item.path}
                             to={item.path}
                             className={`flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors ${isActive(item.path)
-                                    ? 'bg-primary/10 text-primary'
-                                    : 'text-custom-gray hover:bg-gray-100 hover:text-slate-900'
+                                ? 'bg-primary/10 text-primary'
+                                : 'text-custom-gray hover:bg-gray-100 hover:text-slate-900'
                                 }`}
                         >
                             <span
@@ -82,13 +82,17 @@ const Layout: React.FC = () => {
                         Logout
                     </button>
                     <div className="mt-4 flex items-center gap-3 rounded-lg border border-gray-200 p-3">
-                        <div
-                            className="h-10 w-10 rounded-full bg-cover bg-center"
-                            style={{
-                                backgroundImage:
-                                    'url("https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixlib=rb-1.2.1&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80")',
-                            }}
-                        ></div>
+                        <Link
+                            to="/settings"
+                        >
+                            <div
+                                className="h-10 w-10 rounded-full bg-cover bg-center"
+                                style={{
+                                    backgroundImage:
+                                        'url("https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixlib=rb-1.2.1&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80")',
+                                }}
+                            ></div>
+                        </Link>
                         <div className="overflow-hidden">
                             <p className="truncate text-sm font-medium text-slate-900">Eleanor Pena</p>
                             <p className="truncate text-xs text-slate-500">eleanor@example.com</p>
@@ -165,8 +169,8 @@ const Layout: React.FC = () => {
                                         to={item.path}
                                         onClick={() => setIsSidebarOpen(false)}
                                         className={`flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium ${isActive(item.path)
-                                                ? 'bg-primary/10 text-primary'
-                                                : 'text-custom-gray hover:bg-gray-100 hover:text-slate-900'
+                                            ? 'bg-primary/10 text-primary'
+                                            : 'text-custom-gray hover:bg-gray-100 hover:text-slate-900'
                                             }`}
                                     >
                                         <span className="material-symbols-outlined">{item.icon}</span>
@@ -174,6 +178,44 @@ const Layout: React.FC = () => {
                                     </Link>
                                 ))}
                             </nav>
+
+                            <div className="border-t border-gray-200 p-4">
+                                <Link
+                                    to="/help"
+                                    className="flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-custom-gray hover:bg-gray-100 hover:text-slate-900"
+                                >
+                                    <span className="material-symbols-outlined">help</span>
+                                    Help Center
+                                </Link>
+                                <button
+                                    onClick={() => {
+                                        logout();
+                                        navigate('/login')
+                                    }}
+                                    className="mt-1 flex w-full items-center gap-3 rounded-lg px-3 py-2 text-left text-sm font-medium text-custom-gray hover:bg-gray-100 hover:text-slate-900"
+                                >
+                                    <span className="material-symbols-outlined">logout</span>
+                                    Logout
+                                </button>
+                                <div className="mt-4 flex items-center gap-3 rounded-lg border border-gray-200 p-3">
+                                    <Link
+                                        to="/settings"
+                                        onClick={() => setIsSidebarOpen(false)}
+                                    >
+                                        <div
+                                            className="h-10 w-10 rounded-full bg-cover bg-center"
+                                            style={{
+                                                backgroundImage:
+                                                    'url("https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixlib=rb-1.2.1&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80")',
+                                            }}
+                                        ></div>
+                                    </Link>
+                                    <div className="overflow-hidden">
+                                        <p className="truncate text-sm font-medium text-slate-900">Eleanor Pena</p>
+                                        <p className="truncate text-xs text-slate-500">eleanor@example.com</p>
+                                    </div>
+                                </div>
+                            </div>
                         </aside>
                     </div>
                 )}
