@@ -13,6 +13,8 @@ import Settings from './pages/Settings';
 import Reports from './pages/Reports';
 import Login from './pages/Login';
 import SignUp from './pages/SignUp';
+import Notifications from './pages/Notifications';
+import HelpCenter from './pages/HelpCenter';
 
 const App: React.FC = () => {
     return (
@@ -34,8 +36,10 @@ const App: React.FC = () => {
                             <Route path="/receipts/:id/edit" element={<UploadReceipt />} />
                             <Route path="/receipts/:id" element={<ReceiptDetail />} />
                             <Route path="/categories" element={<Categories />} />
+                            <Route path="/notifications" element={<Notifications />} />
                             <Route path="/settings" element={<Settings />} />
                             <Route path="/reports" element={<Reports />} />
+                            <Route path="/help" element={<HelpCenter />} />
                         </Route>
                     </Route>
 
