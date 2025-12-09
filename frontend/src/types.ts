@@ -70,3 +70,38 @@ export interface AuthContextType {
     logout: () => void;
     deleteAccount: () => void;
 }
+
+export interface Preferences {
+    language: string;
+    currency: string;
+    timezone: string;
+    dateFormat: string;
+    darkMode: boolean;
+}
+
+interface NotificationSetting {
+    email: boolean;
+    push: boolean;
+}export interface Notifications {
+    [key: string]: NotificationSetting;
+}
+
+export interface Integration {
+    name: string;
+    icon: string;
+    desc: string;
+    connected: boolean;
+}
+
+export interface BillingHistoryItem {
+    date: string;
+    desc: string;
+    amount: string;
+    status: "Paid" | "Pending";
+}
+
+export interface PaymentMethod {
+    type: string;
+    last4: string;
+    expiry: string;
+}

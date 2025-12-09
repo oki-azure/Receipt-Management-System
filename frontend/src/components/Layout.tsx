@@ -210,7 +210,9 @@ const Layout: React.FC = () => {
                     </div>
 
                     <div className="flex items-center gap-4">
-                        <button className="flex h-10 w-10 items-center justify-center rounded-full text-gray-500 hover:bg-gray-100">
+                        <button 
+                            onClick={() => navigate('/notifications')}
+                            className="flex h-10 w-10 items-center justify-center rounded-full text-gray-500 hover:bg-gray-100">
                             <span className="material-symbols-outlined">notifications</span>
                         </button>
                         <div
