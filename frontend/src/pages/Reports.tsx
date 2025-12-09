@@ -227,28 +227,39 @@ const Reports: React.FC = () => {
                             </div>
 
                             {/* Stats Grid */}
-                            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-4">
+                            <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-[auto-fit,minmax(200px,1fr)]">
                                 {[
                                     { label: "Total Spend", value: `$${totalSpend.toFixed(2)}` },
                                     { label: "Receipts", value: receiptsCount.toString() },
                                     { label: "Top Category", value: topCategory },
                                     { label: "Avg Txn", value: `$${avgTxn.toFixed(2)}` },
                                 ].map((stat, i) => (
-                                    <div key={i} className="rounded-xl border border-gray-200 bg-white p-6">
+                                    <div
+                                        key={i}
+                                        className="rounded-xl border border-gray-200 bg-white p-6 min-w-[200px]"
+                                    >
                                         <p className="text-sm font-medium text-gray-500">{stat.label}</p>
-                                        <p className="mt-1 text-2xl sm:text-3xl font-bold text-slate-900">{stat.value}</p>
+                                        <p className="mt-1 text-3xl font-bold text-slate-900 wrap-break-words">
+                                            {stat.value}
+                                        </p>
                                     </div>
                                 ))}
                             </div>
 
                             {/* Charts */}
-                            <div className="grid grid-cols-1 gap-6 xl:grid-cols-5">
-                                <div className="rounded-xl border border-gray-200 bg-white p-6 xl:col-span-3">
-                                    <h3 className="mb-4 text-lg font-bold text-slate-900">Spending Trend</h3>
-                                    <div className="h-64 w-full">
+                            <div className="grid gap-6 sm:grid-cols-1 xl:grid-cols-[auto-fit,minmax(300px,1fr)]">
+                                {/* Spending Trend */}
+                                <div className="rounded-xl border border-gray-200 bg-white p-6">
+                                    <h3 className="mb-4 text-base sm:text-lg font-bold text-slate-900">
+                                        Spending Trend
+                                    </h3>
+                                    <div className="h-[280px] w-full">
                                         <ResponsiveContainer width="100%" height="100%">
                                             <LineChart data={cumulativeData}>
-                                                <Tooltip contentStyle={{ borderRadius: '8px' }} />
+                                                <Tooltip
+                                                    wrapperStyle={{ zIndex: 10 }}
+                                                    contentStyle={{ borderRadius: "8px", maxWidth: "200px" }}
+                                                />
                                                 <Line
                                                     type="monotone"
                                                     dataKey="value"
@@ -260,9 +271,13 @@ const Reports: React.FC = () => {
                                         </ResponsiveContainer>
                                     </div>
                                 </div>
-                                <div className="flex flex-col justify-center rounded-xl border border-gray-200 bg-white p-6 xl:col-span-2">
-                                    <h3 className="mb-4 text-lg font-bold text-slate-900">Breakdown by Category</h3>
-                                    <div className="h-48 w-full">
+
+                                {/* Breakdown by Category */}
+                                <div className="rounded-xl border border-gray-200 bg-white p-6">
+                                    <h3 className="mb-4 text-base sm:text-lg font-bold text-slate-900">
+                                        Breakdown by Category
+                                    </h3>
+                                    <div className="relative h-[280px] w-full overflow-visible">
                                         <ResponsiveContainer width="100%" height="100%">
                                             <PieChart>
                                                 <Pie
@@ -272,14 +287,19 @@ const Reports: React.FC = () => {
                                                     paddingAngle={5}
                                                     dataKey="value"
                                                     label={({ name, percent }) =>
-                                                        percent !== undefined ? `${name} ${(percent * 100).toFixed(0)}%` : name
+                                                        percent !== undefined
+                                                            ? `${name} ${(percent * 100).toFixed(0)}%`
+                                                            : name
                                                     }
                                                 >
                                                     {categoryTotalsForCharts.map((entry, index) => (
                                                         <Cell key={`cell-${index}`} fill={entry.color} />
                                                     ))}
                                                 </Pie>
-                                                <Tooltip />
+                                                <Tooltip
+                                                    wrapperStyle={{ zIndex: 50 }}
+                                                    contentStyle={{ borderRadius: "8px", maxWidth: "200px" }}
+                                                />
                                             </PieChart>
                                         </ResponsiveContainer>
                                     </div>

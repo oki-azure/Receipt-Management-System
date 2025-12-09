@@ -38,6 +38,12 @@ export const logout = () => {
     localStorage.removeItem('authToken');
 };
 
+export const deleteAccount = (): void => {
+    localStorage.removeItem('user');
+    localStorage.removeItem('authToken');
+};
+
+
 // Check if user is authenticated
 export const isAuthenticated = (): boolean => {
     return Boolean(localStorage.getItem('authToken'));

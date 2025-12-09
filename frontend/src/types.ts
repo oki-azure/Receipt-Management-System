@@ -33,6 +33,7 @@ export interface User {
     name: string;
     email: string;
     password: string;
+    profilePic?: string;
 }
 
 export interface AuthResponse {
@@ -57,4 +58,15 @@ export interface PaginationProps {
     totalItems: number;
     itemsPerPage: number;
     onPageChange: (page: number) => void;
+}
+
+export interface AuthContextType {
+    user: User | null;
+    token: string | null;
+    isLoggedIn: boolean;
+    isHydrating: boolean;
+    login: (email: string, password: string) => boolean;
+    signup: (fullName: string, email: string, password: string, confirmPassword: string) => boolean;
+    logout: () => void;
+    deleteAccount: () => void;
 }

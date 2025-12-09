@@ -7,7 +7,7 @@ const Layout: React.FC = () => {
     const [query, setQuery] = React.useState('');
 
     const location = useLocation();
-    const { logout } = useAuth();
+    const { user, logout } = useAuth();
     const navigate = useNavigate();
 
     const handleSearch = (e: React.FormEvent) => {
@@ -81,25 +81,100 @@ const Layout: React.FC = () => {
                         <span className="material-symbols-outlined">logout</span>
                         Logout
                     </button>
+
+                    {/* User Info */}
                     <div className="mt-4 flex items-center gap-3 rounded-lg border border-gray-200 p-3">
                         <Link
                             to="/settings"
                         >
                             <div
                                 className="h-10 w-10 rounded-full bg-cover bg-center"
-                                style={{
-                                    backgroundImage:
-                                        'url("https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixlib=rb-1.2.1&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80")',
-                                }}
+                                style={{ backgroundImage: user?.profilePic ? `url(${user.profilePic})` : undefined }}
                             ></div>
                         </Link>
                         <div className="overflow-hidden">
-                            <p className="truncate text-sm font-medium text-slate-900">Eleanor Pena</p>
-                            <p className="truncate text-xs text-slate-500">eleanor@example.com</p>
+                            <p className="truncate text-sm font-medium text-slate-900">
+                                {user?.name}
+                            </p>
+                            <p className="truncate text-xs text-slate-500">
+                                {user?.email}
+                            </p>
                         </div>
                     </div>
                 </div>
             </aside>
+
+            {/* Mobile Sidebar */}
+            {isSidebarOpen && (
+                <div className="fixed inset-0 z-50 flex">
+                    <div
+                        className="fixed inset-0 bg-black/30"
+                        onClick={() => setIsSidebarOpen(false)}
+                    ></div>
+                    <aside className="relative z-50 w-64 flex-col border-r border-gray-200 bg-white">
+                        <div className="flex items-center justify-between px-6 py-6">
+                            <h1 className="text-xl font-bold text-slate-900">ReceiptManager</h1>
+                            <button onClick={() => setIsSidebarOpen(false)}>
+                                <span className="material-symbols-outlined">close</span>
+                            </button>
+                        </div>
+                        <nav className="flex flex-col gap-1 px-4 py-4">
+                            {navItems.map((item) => (
+                                <Link
+                                    key={item.path}
+                                    to={item.path}
+                                    onClick={() => setIsSidebarOpen(false)}
+                                    className={`flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium ${isActive(item.path)
+                                        ? 'bg-primary/10 text-primary'
+                                        : 'text-custom-gray hover:bg-gray-100 hover:text-slate-900'
+                                        }`}
+                                >
+                                    <span className="material-symbols-outlined">{item.icon}</span>
+                                    {item.name}
+                                </Link>
+                            ))}
+                        </nav>
+
+                        <div className="border-t border-gray-200 p-4">
+                            <Link
+                                to="/help"
+                                className="flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-custom-gray hover:bg-gray-100 hover:text-slate-900"
+                            >
+                                <span className="material-symbols-outlined">help</span>
+                                Help Center
+                            </Link>
+                            <button
+                                onClick={() => {
+                                    logout();
+                                    navigate('/login')
+                                }}
+                                className="mt-1 flex w-full items-center gap-3 rounded-lg px-3 py-2 text-left text-sm font-medium text-custom-gray hover:bg-gray-100 hover:text-slate-900"
+                            >
+                                <span className="material-symbols-outlined">logout</span>
+                                Logout
+                            </button>
+                            <div className="mt-4 flex items-center gap-3 rounded-lg border border-gray-200 p-3">
+                                <Link
+                                    to="/settings"
+                                    onClick={() => setIsSidebarOpen(false)}
+                                >
+                                    <div
+                                        className="h-10 w-10 rounded-full bg-cover bg-center"
+                                        style={{
+                                            backgroundImage:
+                                                'url("https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixlib=rb-1.2.1&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80")',
+                                        }}
+                                    ></div>
+                                </Link>
+                                <div className="overflow-hidden">
+                                    <p className="truncate text-sm font-medium text-slate-900">Eleanor Pena</p>
+                                    <p className="truncate text-xs text-slate-500">eleanor@example.com</p>
+                                </div>
+                            </div>
+                        </div>
+                    </aside>
+                </div>
+            )}
 
             {/* Main Content Wrapper */}
             <div className="flex flex-1 flex-col overflow-hidden">
@@ -140,85 +215,10 @@ const Layout: React.FC = () => {
                         </button>
                         <div
                             className="h-8 w-8 rounded-full bg-cover bg-center lg:hidden"
-                            style={{
-                                backgroundImage:
-                                    'url("https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixlib=rb-1.2.1&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80")',
-                            }}
+                            style={ {backgroundImage: user?.profilePic ? `url(${user.profilePic})` : undefined} }
                         ></div>
                     </div>
                 </header>
-
-                {/* Mobile Sidebar */}
-                {isSidebarOpen && (
-                    <div className="fixed inset-0 z-50 flex">
-                        <div
-                            className="fixed inset-0 bg-black/30"
-                            onClick={() => setIsSidebarOpen(false)}
-                        ></div>
-                        <aside className="relative z-50 w-64 flex-col border-r border-gray-200 bg-white">
-                            <div className="flex items-center justify-between px-6 py-6">
-                                <h1 className="text-xl font-bold text-slate-900">ReceiptManager</h1>
-                                <button onClick={() => setIsSidebarOpen(false)}>
-                                    <span className="material-symbols-outlined">close</span>
-                                </button>
-                            </div>
-                            <nav className="flex flex-col gap-1 px-4 py-4">
-                                {navItems.map((item) => (
-                                    <Link
-                                        key={item.path}
-                                        to={item.path}
-                                        onClick={() => setIsSidebarOpen(false)}
-                                        className={`flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium ${isActive(item.path)
-                                            ? 'bg-primary/10 text-primary'
-                                            : 'text-custom-gray hover:bg-gray-100 hover:text-slate-900'
-                                            }`}
-                                    >
-                                        <span className="material-symbols-outlined">{item.icon}</span>
-                                        {item.name}
-                                    </Link>
-                                ))}
-                            </nav>
-
-                            <div className="border-t border-gray-200 p-4">
-                                <Link
-                                    to="/help"
-                                    className="flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-custom-gray hover:bg-gray-100 hover:text-slate-900"
-                                >
-                                    <span className="material-symbols-outlined">help</span>
-                                    Help Center
-                                </Link>
-                                <button
-                                    onClick={() => {
-                                        logout();
-                                        navigate('/login')
-                                    }}
-                                    className="mt-1 flex w-full items-center gap-3 rounded-lg px-3 py-2 text-left text-sm font-medium text-custom-gray hover:bg-gray-100 hover:text-slate-900"
-                                >
-                                    <span className="material-symbols-outlined">logout</span>
-                                    Logout
-                                </button>
-                                <div className="mt-4 flex items-center gap-3 rounded-lg border border-gray-200 p-3">
-                                    <Link
-                                        to="/settings"
-                                        onClick={() => setIsSidebarOpen(false)}
-                                    >
-                                        <div
-                                            className="h-10 w-10 rounded-full bg-cover bg-center"
-                                            style={{
-                                                backgroundImage:
-                                                    'url("https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixlib=rb-1.2.1&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80")',
-                                            }}
-                                        ></div>
-                                    </Link>
-                                    <div className="overflow-hidden">
-                                        <p className="truncate text-sm font-medium text-slate-900">Eleanor Pena</p>
-                                        <p className="truncate text-xs text-slate-500">eleanor@example.com</p>
-                                    </div>
-                                </div>
-                            </div>
-                        </aside>
-                    </div>
-                )}
 
                 {/* Page Content */}
                 <main className="flex-1 overflow-y-auto bg-background-light p-4 lg:p-8">
