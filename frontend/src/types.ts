@@ -105,3 +105,22 @@ export interface PaymentMethod {
     last4: string;
     expiry: string;
 }
+
+export interface Notification {
+    id: number;
+    title: string;
+    message: string;
+    createdAt: Date;
+    type: "success" | "info" | "warning";
+    read: boolean;
+}
+
+export interface NotificationContextType {
+    notifications: Notification[];
+    notifyReceipt: (action: "added" | "updated" | "deleted", name: string, amount?: string) => void;
+    notifyCategory: (action: "added" | "updated" | "deleted", name: string) => void;
+    notifyTag: (action: "added" | "updated" | "deleted", name: string) => void;
+    markAllAsRead: () => void;
+    clearAll: () => void;
+    hasNewNotification: boolean;
+}

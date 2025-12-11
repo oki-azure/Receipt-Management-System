@@ -81,12 +81,9 @@ const ReceiptDetail: React.FC = () => {
                     </button>
                     <button
                         onClick={handleDelete}
-                        className="rounded-lg px-4 py-2 text-sm font-bold text-danger hover:bg-red-50"
+                        className="rounded-lg bg-gray-200 px-4 py-2 text-sm font-bold text-danger hover:bg-red-50"
                     >
                         Delete
-                    </button>
-                    <button className="flex h-10 w-10 items-center justify-center rounded-lg border border-gray-200 bg-white hover:bg-gray-50">
-                        <span className="material-symbols-outlined text-gray-600">more_vert</span>
                     </button>
                 </div>
             </div>

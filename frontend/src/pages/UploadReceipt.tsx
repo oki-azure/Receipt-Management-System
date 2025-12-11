@@ -4,6 +4,12 @@ import { v4 as uuid } from 'uuid';
 import { addTransaction, updateTransaction, getTransactionById } from '../utils/transactions';
 import { addReceipt, updateReceipt, getReceiptById } from '../utils/receipts';
 import { type Transaction, type Receipt, type Category, type Tag } from '../types';
+import { Input } from "@/components/ui/input"
+import { ChevronDownIcon } from "lucide-react";
+import { Calendar } from "@/components/ui/calendar";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Button } from '@/components/ui/button';
+import { Textarea } from "@/components/ui/textarea"
 
 const UploadReceipt: React.FC = () => {
     const navigate = useNavigate();
@@ -23,6 +29,9 @@ const UploadReceipt: React.FC = () => {
     const [fileUrl, setFileUrl] = useState<string | null>(null);
     const [imagePreview, setImagePreview] = React.useState<string | null>(null);
     const [transactionId, setTransactionId] = useState<string | null>(null);
+
+    // Date Picker
+    const [open, setOpen] = React.useState(false)
 
     // Load categories from LocalStorage on mount
     React.useEffect(() => {
@@ -154,6 +163,7 @@ const UploadReceipt: React.FC = () => {
                 uploadedAt: new Date().toISOString(),
                 notes,
                 tags: [],
+                imageUrl: imagePreview || undefined,
             };
             addReceipt(newReceipt);
             navigate('/receipts');
@@ -248,7 +258,7 @@ const UploadReceipt: React.FC = () => {
                                 />
                                 <label
                                     htmlFor="fileInput"
-                                    className="mt-6 rounded-lg bg-gray-100 px-4 py-2 text-sm font-bold text-slate-900 hover:bg-gray-200 cursor-pointer"
+                                    className="mt-6 rounded-lg bg-gray-300 px-4 py-2 text-sm font-bold text-slate-900 hover:bg-gray-200 cursor-pointer"
                                 >
                                     Browse Files
                                 </label>
@@ -267,37 +277,65 @@ const UploadReceipt: React.FC = () => {
                     <form className="space-y-5 p-6" onSubmit={handleSubmit}>
                         <div className="space-y-1">
                             <label className="text-sm font-medium text-slate-900">Vendor/Store Name</label>
-                            <input
-                                type="text"
+                            <Input
+                                type="text" placeholder='Enter Vendor/Store Name'
                                 value={vendor}
                                 onChange={(e) => setVendor(e.target.value)}
-                                placeholder="Enter store name"
                                 required
-                                className="w-full rounded-lg border-gray-300 text-sm focus:border-primary focus:ring-primary px-3"
-                            />
+                                className='border-gray-500'
+                            ></Input>
                         </div>
 
                         <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                             <div className="space-y-1">
                                 <label className="text-sm font-medium text-slate-900">Total Amount</label>
-                                <input
-                                    type="text"
+                                <Input
+                                    type='text'
                                     value={amount}
                                     onChange={(e) => setAmount(e.target.value)}
                                     placeholder="e.g., 25.99"
                                     required
-                                    className="w-full rounded-lg border-gray-300 text-sm focus:border-primary focus:ring-primary px-3"
-                                />
+                                    className="border-gray-500"
+                                ></Input>
                             </div>
-                            <div className="space-y-1">
-                                <label className="text-sm font-medium text-slate-900">Purchase Date</label>
-                                <input
-                                    type="date"
-                                    value={date}
-                                    onChange={(e) => setDate(e.target.value)}
-                                    required
-                                    className="w-full rounded-lg border-gray-300 text-sm focus:border-primary focus:ring-primary px-3"
-                                />
+                            <div className="flex flex-col">
+                                <label htmlFor="date" className="text-sm font-medium text-slate-900">
+                                    Purchase Date
+                                </label>
+                                <Popover open={open} onOpenChange={setOpen}>
+                                    <PopoverTrigger asChild>
+                                        <Button
+                                            variant="outline"
+                                            id="date"
+                                            className="w-48 justify-between font-normal border-gray-500"
+                                        >
+                                            {date ? date : "Select date"}
+                                            <ChevronDownIcon />
+                                        </Button>
+                                    </PopoverTrigger>
+                                    <PopoverContent
+                                        className="w-auto overflow-hidden p-0"
+                                        side="bottom"
+                                        align="start"
+                                        avoidCollisions={false}
+                                    >
+                                        <Calendar
+                                            mode="single"
+                                            selected={date ? new Date(date) : undefined}
+                                            onSelect={(d) => {
+                                                if (d) {
+                                                    const iso = d.toISOString().split("T")[0];
+                                                    setDate(iso);
+                                                }
+                                                setOpen(false);
+                                            }}
+                                            disabled={(d) => {
+                                                const today = new Date();
+                                                return d > today;
+                                            }}
+                                        />
+                                    </PopoverContent>
+                                </Popover>
                             </div>
                         </div>
 
@@ -364,29 +402,29 @@ const UploadReceipt: React.FC = () => {
 
                         <div className="space-y-1">
                             <label className="text-sm font-medium text-slate-900">Notes/Description (Optional)</label>
-                            <textarea
+                            <Textarea
                                 rows={3}
                                 value={notes}
                                 onChange={(e) => setNotes(e.target.value)}
                                 placeholder="Add a short description..."
-                                className="w-full rounded-lg border-gray-300 text-sm focus:border-primary focus:ring-primary px-3"
-                            ></textarea>
+                                className="border-gray-500"
+                            >
+                            </Textarea>
                         </div>
 
                         <div className="flex justify-end gap-3 pt-4">
-                            <button
-                                type="button"
+                            <Button
                                 onClick={() => navigate(-1)}
-                                className="rounded-lg bg-gray-100 px-4 py-2 text-sm font-bold text-slate-900 hover:bg-gray-200"
+                                className="rounded-lg bg-gray-300  px-4 py-2 text-sm font-bold text-slate-900 hover:bg-gray-200 cursor-pointer"
                             >
                                 Cancel
-                            </button>
-                            <button
+                            </Button>
+                            <Button
                                 type="submit"
-                                className="rounded-lg bg-primary px-4 py-2 text-sm font-bold text-white hover:bg-primary/90"
+                                className="rounded-lg bg-primary px-4 py-2 text-sm font-bold text-white hover:bg-primary/90 cursor-pointer"
                             >
                                 {isEdit ? 'Save Changes' : 'Save Receipt'}
-                            </button>
+                            </Button>
                         </div>
                     </form>
                 </div>

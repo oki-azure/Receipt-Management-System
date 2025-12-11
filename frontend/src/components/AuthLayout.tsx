@@ -18,7 +18,7 @@ const AuthLayout: React.FC = () => {
                         <span className="material-symbols-outlined text-4xl">receipt_long</span>
                     </div>
                     <h1 className="mb-4 text-4xl font-bold leading-tight">
-                        Streamline Your Expenses
+                        ReceiptManager
                     </h1>
                     <p className="text-lg text-slate-300">
                         The simplest way to manage your receipts, track spending, and generate reports all in one place.

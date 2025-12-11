@@ -253,22 +253,26 @@ const Reports: React.FC = () => {
                                     <h3 className="mb-4 text-base sm:text-lg font-bold text-slate-900">
                                         Spending Trend
                                     </h3>
-                                    <div className="h-[280px] w-full">
-                                        <ResponsiveContainer width="100%" height="100%">
-                                            <LineChart data={cumulativeData}>
-                                                <Tooltip
-                                                    wrapperStyle={{ zIndex: 10 }}
-                                                    contentStyle={{ borderRadius: "8px", maxWidth: "200px" }}
-                                                />
-                                                <Line
-                                                    type="monotone"
-                                                    dataKey="value"
-                                                    stroke="#50E3C2"
-                                                    strokeWidth={3}
-                                                    dot={false}
-                                                />
-                                            </LineChart>
-                                        </ResponsiveContainer>
+                                    <div className="h-[280px] w-full flex items-center justify-center">
+                                        {cumulativeData && cumulativeData.length > 0 ? (
+                                            <ResponsiveContainer width="100%" height="100%">
+                                                <LineChart data={cumulativeData}>
+                                                    <Tooltip
+                                                        wrapperStyle={{ zIndex: 10 }}
+                                                        contentStyle={{ borderRadius: "8px", maxWidth: "200px" }}
+                                                    />
+                                                    <Line
+                                                        type="monotone"
+                                                        dataKey="value"
+                                                        stroke="#50E3C2"
+                                                        strokeWidth={3}
+                                                        dot={false}
+                                                    />
+                                                </LineChart>
+                                            </ResponsiveContainer>
+                                        ) : (
+                                            <p className="text-gray-500 text-sm">No data yet, add some receipts</p>
+                                        )}
                                     </div>
                                 </div>
 
@@ -277,31 +281,35 @@ const Reports: React.FC = () => {
                                     <h3 className="mb-4 text-base sm:text-lg font-bold text-slate-900">
                                         Breakdown by Category
                                     </h3>
-                                    <div className="relative h-[280px] w-full overflow-visible">
-                                        <ResponsiveContainer width="100%" height="100%">
-                                            <PieChart>
-                                                <Pie
-                                                    data={categoryTotalsForCharts}
-                                                    innerRadius={50}
-                                                    outerRadius={70}
-                                                    paddingAngle={5}
-                                                    dataKey="value"
-                                                    label={({ name, percent }) =>
-                                                        percent !== undefined
-                                                            ? `${name} ${(percent * 100).toFixed(0)}%`
-                                                            : name
-                                                    }
-                                                >
-                                                    {categoryTotalsForCharts.map((entry, index) => (
-                                                        <Cell key={`cell-${index}`} fill={entry.color} />
-                                                    ))}
-                                                </Pie>
-                                                <Tooltip
-                                                    wrapperStyle={{ zIndex: 50 }}
-                                                    contentStyle={{ borderRadius: "8px", maxWidth: "200px" }}
-                                                />
-                                            </PieChart>
-                                        </ResponsiveContainer>
+                                    <div className="relative h-[280px] w-full overflow-visible flex items-center justify-center">
+                                        {categoryTotalsForCharts && categoryTotalsForCharts.length > 0 ? (
+                                            <ResponsiveContainer width="100%" height="100%">
+                                                <PieChart>
+                                                    <Pie
+                                                        data={categoryTotalsForCharts}
+                                                        innerRadius={50}
+                                                        outerRadius={70}
+                                                        paddingAngle={5}
+                                                        dataKey="value"
+                                                        label={({ name, percent }) =>
+                                                            percent !== undefined
+                                                                ? `${name} ${(percent * 100).toFixed(0)}%`
+                                                                : name
+                                                        }
+                                                    >
+                                                        {categoryTotalsForCharts.map((entry, index) => (
+                                                            <Cell key={`cell-${index}`} fill={entry.color} />
+                                                        ))}
+                                                    </Pie>
+                                                    <Tooltip
+                                                        wrapperStyle={{ zIndex: 50 }}
+                                                        contentStyle={{ borderRadius: "8px", maxWidth: "200px" }}
+                                                    />
+                                                </PieChart>
+                                            </ResponsiveContainer>
+                                        ) : (
+                                            <p className="text-gray-500 text-sm">No data yet, add some receipts</p>
+                                        )}
                                     </div>
                                 </div>
                             </div>
@@ -310,34 +318,40 @@ const Reports: React.FC = () => {
                             <div className="overflow-hidden rounded-xl border border-gray-200 bg-white">
                                 <div className="p-6 font-bold text-slate-900">Recent Transactions</div>
                                 <div className="overflow-x-auto">
-                                    <table className="w-full text-left text-sm">
-                                        <thead className="bg-gray-50 text-xs uppercase text-gray-500">
-                                            <tr>
-                                                <th className="px-6 py-3">Date</th>
-                                                <th className="px-6 py-3">Vendor</th>
-                                                <th className="px-6 py-3">Category</th>
-                                                <th className="px-6 py-3 text-right">Amount</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody className="divide-y divide-gray-200">
-                                            {sortedTransactions.map(txn => (
-                                                <tr key={txn.id} className="hover:bg-gray-50">
-                                                    <td className="px-6 py-4">
-                                                        {new Date(txn.date).toLocaleDateString("en-US", {
-                                                            month: "short",
-                                                            day: "numeric",
-                                                            year: "numeric"
-                                                        })}
-                                                    </td>
-                                                    <td className="px-6 py-4 font-medium">{txn.vendor}</td>
-                                                    <td className="px-6 py-4">{txn.category}</td>
-                                                    <td className="px-6 py-4 text-right font-medium">
-                                                        ${txn.amount.toFixed(2)}
-                                                    </td>
+                                    {sortedTransactions && sortedTransactions.length > 0 ? (
+                                        <table className="w-full text-left text-sm">
+                                            <thead className="bg-gray-50 text-xs uppercase text-gray-500">
+                                                <tr>
+                                                    <th className="px-6 py-3">Date</th>
+                                                    <th className="px-6 py-3">Vendor</th>
+                                                    <th className="px-6 py-3">Category</th>
+                                                    <th className="px-6 py-3 text-right">Amount</th>
                                                 </tr>
-                                            ))}
-                                        </tbody>
-                                    </table>
+                                            </thead>
+                                            <tbody className="divide-y divide-gray-200">
+                                                {sortedTransactions.map((txn) => (
+                                                    <tr key={txn.id} className="hover:bg-gray-50">
+                                                        <td className="px-6 py-4">
+                                                            {new Date(txn.date).toLocaleDateString("en-US", {
+                                                                month: "short",
+                                                                day: "numeric",
+                                                                year: "numeric",
+                                                            })}
+                                                        </td>
+                                                        <td className="px-6 py-4 font-medium">{txn.vendor}</td>
+                                                        <td className="px-6 py-4">{txn.category}</td>
+                                                        <td className="px-6 py-4 text-right font-medium">
+                                                            ${txn.amount.toFixed(2)}
+                                                        </td>
+                                                    </tr>
+                                                ))}
+                                            </tbody>
+                                        </table>
+                                    ) : (
+                                        <div className="py-12 text-center text-gray-500 text-sm">
+                                            No transactions yet, add some receipts
+                                        </div>
+                                    )}
                                 </div>
                             </div>
                         </div>

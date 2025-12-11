@@ -6,8 +6,6 @@ import { getTransactions } from '../utils/transactions';
 import { DashboardFilter } from '../components/Dashboard/DashboardFilter';
 import { StatsCard } from '../components/Dashboard/StatsCard';
 
-
-
 const Dashboard: React.FC = () => {
     // const [filter, setFilter] = React.useState<'week' | 'month' | 'year'>('month');
     const [transactions, setTransactions] = useState<Transaction[]>([]);
@@ -108,7 +106,7 @@ const Dashboard: React.FC = () => {
                     <div className="space-y-6">
                         <DashboardFilter active={activeFilter} onChange={setActiveFilter} />
                     </div>
-                    <Link to="/upload" className="flex items-center gap-2 rounded-lg bg-success px-4 py-2 text-sm font-bold text-black hover:bg-success/90">
+                    <Link to="/upload" className="flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-bold text-white hover:bg-primary/90 transition">
                         <span className="material-symbols-outlined">add_circle</span>
                         Upload Receipt
                     </Link>
@@ -160,30 +158,49 @@ const Dashboard: React.FC = () => {
                 </div>
             </div>
 
-            {/* Charts Area */}
             <div className="grid grid-cols-1 gap-6 lg:grid-cols-5">
                 {/* Line Chart */}
                 <div className="rounded-xl border border-gray-200 bg-white p-6 lg:col-span-3 h-[300px]">
                     <h3 className="mb-4 text-lg font-semibold text-slate-900">Spending Over Time</h3>
-                    <div className="h-[250px] w-full pb-4">
-                        <ResponsiveContainer width="100%" height="100%">
-                            <LineChart data={lineData}>
-                                <defs>
-                                    <linearGradient id="colorValue" x1="0" y1="0" x2="0" y2="1">
-                                        <stop offset="5%" stopColor="#137fec" stopOpacity={0.1} />
-                                        <stop offset="95%" stopColor="#137fec" stopOpacity={0} />
-                                    </linearGradient>
-                                </defs>
-                                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E5E7EB" />
-                                <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fill: '#6B7280', fontSize: 12 }} />
-                                <YAxis hide />
-                                <Tooltip
-                                    contentStyle={{ backgroundColor: '#fff', borderRadius: '8px', border: '1px solid #e5e7eb' }}
-                                    itemStyle={{ color: '#111827', fontWeight: 600 }}
-                                />
-                                <Line type="monotone" dataKey="value" stroke="#137fec" strokeWidth={3} dot={false} activeDot={{ r: 6 }} />
-                            </LineChart>
-                        </ResponsiveContainer>
+                    <div className="h-[250px] w-full pb-4 flex items-center justify-center">
+                        {lineData && lineData.length > 0 ? (
+                            <ResponsiveContainer width="100%" height="100%">
+                                <LineChart data={lineData}>
+                                    <defs>
+                                        <linearGradient id="colorValue" x1="0" y1="0" x2="0" y2="1">
+                                            <stop offset="5%" stopColor="#137fec" stopOpacity={0.1} />
+                                            <stop offset="95%" stopColor="#137fec" stopOpacity={0} />
+                                        </linearGradient>
+                                    </defs>
+                                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E5E7EB" />
+                                    <XAxis
+                                        dataKey="name"
+                                        axisLine={false}
+                                        tickLine={false}
+                                        tick={{ fill: "#6B7280", fontSize: 12 }}
+                                    />
+                                    <YAxis hide />
+                                    <Tooltip
+                                        contentStyle={{
+                                            backgroundColor: "#fff",
+                                            borderRadius: "8px",
+                                            border: "1px solid #e5e7eb",
+                                        }}
+                                        itemStyle={{ color: "#111827", fontWeight: 600 }}
+                                    />
+                                    <Line
+                                        type="monotone"
+                                        dataKey="value"
+                                        stroke="#137fec"
+                                        strokeWidth={3}
+                                        dot={false}
+                                        activeDot={{ r: 6 }}
+                                    />
+                                </LineChart>
+                            </ResponsiveContainer>
+                        ) : (
+                            <p className="text-gray-500 text-sm">No data yet, add some receipts</p>
+                        )}
                     </div>
                 </div>
 
@@ -191,35 +208,49 @@ const Dashboard: React.FC = () => {
                 <div className="flex flex-col gap-4 rounded-xl border border-gray-200 bg-white p-6 lg:col-span-2">
                     <h3 className="text-lg font-semibold text-slate-900">Spending by Category</h3>
                     <div className="relative flex h-[200px] w-full items-center justify-center">
-                        <ResponsiveContainer width="100%" height="100%">
-                            <PieChart>
-                                <Pie
-                                    data={pieData}
-                                    innerRadius={60}
-                                    outerRadius={80}
-                                    paddingAngle={5}
-                                    dataKey="value"
-                                    stroke="none"
-                                >
-                                    {pieData.map((entry, index) => (
-                                        <Cell key={`cell-${index}`} fill={entry.color} />
-                                    ))}
-                                </Pie>
-                            </PieChart>
-                        </ResponsiveContainer>
-                        <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-                            <span className="text-xs text-gray-500">Total</span>
-                            <span className="text-xl font-bold text-slate-900">${totalSpending.toLocaleString()}</span>
+                        {pieData && pieData.length > 0 ? (
+                            <>
+                                <ResponsiveContainer width="100%" height="100%">
+                                    <PieChart>
+                                        <Pie
+                                            data={pieData}
+                                            innerRadius={60}
+                                            outerRadius={80}
+                                            paddingAngle={5}
+                                            dataKey="value"
+                                            stroke="none"
+                                        >
+                                            {pieData.map((entry, index) => (
+                                                <Cell key={`cell-${index}`} fill={entry.color} />
+                                            ))}
+                                        </Pie>
+                                    </PieChart>
+                                </ResponsiveContainer>
+                                <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+                                    <span className="text-xs text-gray-500">Total</span>
+                                    <span className="text-xl font-bold text-slate-900">
+                                        ${totalSpending.toLocaleString()}
+                                    </span>
+                                </div>
+                            </>
+                        ) : (
+                            <p className="text-gray-500 text-sm">No data yet, add some receipts</p>
+                        )}
+                    </div>
+
+                    {pieData && pieData.length > 0 && (
+                        <div className="grid grid-cols-2 gap-4 text-sm">
+                            {pieData.map((item) => (
+                                <div key={item.name} className="flex items-center gap-2">
+                                    <span
+                                        className="h-2 w-2 rounded-full"
+                                        style={{ backgroundColor: item.color }}
+                                    ></span>
+                                    <span className="text-gray-600">{item.name}</span>
+                                </div>
+                            ))}
                         </div>
-                    </div>
-                    <div className="grid grid-cols-2 gap-4 text-sm">
-                        {pieData.map((item) => (
-                            <div key={item.name} className="flex items-center gap-2">
-                                <span className="h-2 w-2 rounded-full" style={{ backgroundColor: item.color }}></span>
-                                <span className="text-gray-600">{item.name}</span>
-                            </div>
-                        ))}
-                    </div>
+                    )}
                 </div>
             </div>
 
@@ -252,7 +283,7 @@ const Dashboard: React.FC = () => {
                             {transactions.length === 0 && (
                                 <tr>
                                     <td colSpan={4} className="px-4 py-6 text-center text-sm text-gray-400">
-                                        No receipts yet
+                                        No receipts added yet, add some receipts
                                     </td>
                                 </tr>
                             )}

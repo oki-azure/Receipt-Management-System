@@ -1,9 +1,8 @@
 import React from 'react';
 import ProfileTab from '../components/settings/ProfileTab';
 import PreferencesTab from '../components/settings/PreferencesTab';
-import NotificationsTab from '../components/settings/NotificationsTab';
-import IntegrationsTab from '../components/settings/IntegrationsTab';
-import BillingTab from '../components/settings/BillingTab';
+import AddTagsTab from '../components/settings/AddTagsTab';
+import AddCategoriesTab from '../components/settings/AddCategoriesTab';
 
 const Settings: React.FC = () => {
     const [activeTab, setActiveTab] = React.useState('Profile');
@@ -17,11 +16,11 @@ const Settings: React.FC = () => {
 
             {/* Tab Navigation */}
             <div className="flex overflow-x-auto border-b border-gray-200">
-                {['Profile', 'Preferences', 'Notifications', 'Integrations', 'Billing'].map((tab) => (
+                {['Profile', 'Preferences', 'Categories', 'Tags'].map((tab) => (
                     <button
                         key={tab}
                         onClick={() => setActiveTab(tab)}
-                        className={`flex items-center gap-2 whitespace-nowrap border-b-2 px-4 py-3 text-sm font-medium ${activeTab === tab
+                        className={`flex items-center gap-2 whitespace-nowrap border-b-2 px-4 py-3 text-sm font-medium cursor-pointer ${activeTab === tab
                             ? 'border-primary text-primary'
                             : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-slate-900'
                             }`}
@@ -31,11 +30,9 @@ const Settings: React.FC = () => {
                                 ? 'person'
                                 : tab === 'Preferences'
                                     ? 'tune'
-                                    : tab === 'Notifications'
-                                        ? 'notifications_active'
-                                        : tab === 'Integrations'
-                                            ? 'cable'
-                                            : 'credit_card'}
+                                    : tab === 'Categories'
+                                        ? 'category'
+                                        : 'sell'}
                         </span>
                         {tab}
                     </button>
@@ -44,9 +41,8 @@ const Settings: React.FC = () => {
 
             {activeTab === 'Profile' && <ProfileTab />}
             {activeTab === 'Preferences' && <PreferencesTab />}
-            {activeTab === 'Notifications' && <NotificationsTab />}
-            {activeTab === 'Integrations' && <IntegrationsTab />}
-            {activeTab === 'Billing' && <BillingTab />}
+            {activeTab === 'Categories' && <AddCategoriesTab />}
+            {activeTab === 'Tags' && <AddTagsTab />}
         </div>
     );
 };

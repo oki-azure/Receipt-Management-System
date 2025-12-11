@@ -6,6 +6,7 @@ import { type Receipt, type Transaction, type Category } from '../types';
 import { deleteReceipt } from '../utils/receipts';
 import { deleteTransaction } from '../utils/transactions';
 import Pagination from '../components/ReceiptsListPagination';
+import { Tooltip, TooltipContent, TooltipTrigger, } from "@/components/ui/tooltip"
 
 const ReceiptsList: React.FC = () => {
     const [selected, setSelected] = useState<string[]>([]);
@@ -232,7 +233,7 @@ const ReceiptsList: React.FC = () => {
                                 <th scope="col" className="px-6 py-3">Merchant</th>
                                 <th scope="col" className="px-6 py-3">Category</th>
                                 <th scope="col" className="px-6 py-3 text-right">Amount</th>
-                                <th scope="col" className="px-6 py-3 text-right">Actions</th>
+                                <th scope="col" className="px-6 py-3 text-right"></th>
                             </tr>
                         </thead>
 
@@ -257,12 +258,20 @@ const ReceiptsList: React.FC = () => {
                                             ${receipt.amount.toFixed(2)}
                                         </td>
                                         <td className="px-6 py-4 text-right">
-                                            <Link
-                                                to={`/receipts/${receipt.id}`}
-                                                className="text-gray-400 hover:text-slate-900"
-                                            >
-                                                <span className="material-symbols-outlined">more_horiz</span>
-                                            </Link>
+                                            <Tooltip>
+                                                <TooltipTrigger asChild>
+                                                    <Link
+                                                        to={`/receipts/${receipt.id}`}
+                                                        className="text-gray-400 hover:text-slate-900"
+                                                    >
+                                                        <span className="material-symbols-outlined">visibility</span>
+                                                    </Link>
+                                                </TooltipTrigger>
+                                                <TooltipContent>
+                                                    <p>View</p>
+                                                </TooltipContent>
+                                            </Tooltip>
+
                                         </td>
                                     </tr>
                                 ))

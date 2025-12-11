@@ -90,10 +90,21 @@ const ProfileTab: React.FC = () => {
                     <div className="mt-4 space-y-4">
                         {/* Profile Picture */}
                         <div className="flex items-center gap-4">
-                            <div
-                                className="h-20 w-20 rounded-full bg-cover bg-center"
-                                style={{ backgroundImage: `url(${user.profilePic || ""})` }}
-                            ></div>
+                            <div className="h-20 w-20 rounded-full flex items-center justify-center bg-gray-200 text-slate-700 font-semibold">
+                                {user?.profilePic ? (
+                                    <div
+                                        className="h-20 w-20 rounded-full bg-cover bg-center"
+                                        style={{ backgroundImage: `url(${user.profilePic})` }}
+                                    ></div>
+                                ) : (
+                                    <span className="text-xl">
+                                        {user?.name
+                                            ?.split(" ")
+                                            .map((n) => n[0])
+                                            .join("")}
+                                    </span>
+                                )}
+                            </div>
                             <div>
                                 <p className="text-lg font-bold text-slate-900">Profile Picture</p>
                                 <p className="text-sm text-gray-500">PNG, JPG or GIF. Max 2MB.</p>
