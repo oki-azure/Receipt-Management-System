@@ -4,7 +4,20 @@ import { type Notification, type NotificationContextType } from "../types";
 const NotificationContext = createContext<NotificationContextType | undefined>(undefined);
 
 export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-    const [notifications, setNotifications] = useState<Notification[]>([]);
+    const [notifications, setNotifications] = useState<Notification[]>(() => {
+        try {
+            const raw = localStorage.getItem("notifications");
+            if (!raw) return [];
+            const parsed = JSON.parse(raw) as Notification[];
+            // if using numeric timestamps, no revival needed
+            // validate minimal shape to avoid bad data
+            if (!Array.isArray(parsed)) return [];
+            return parsed.filter(n => typeof n.id === "number");
+        } catch {
+            return [];
+        }
+    });
+
     const [hasNewNotification, setHasNewNotification] = useState(false);
 
     // Hydrate from LocalStorage
@@ -12,8 +25,7 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
         const stored = localStorage.getItem("notifications");
         if (stored) {
             const parsed: Notification[] = JSON.parse(stored);
-            // revive Date objects
-            setNotifications(parsed.map(n => ({ ...n, createdAt: new Date(n.createdAt) })));
+            setNotifications(parsed); // timestamps are already numbers
         }
     }, []);
 
@@ -28,17 +40,17 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
         setHasNewNotification(true);
     };
 
-    const notifyReceipt = (action: "added" | "updated" | "deleted", name: string, amount?: string) => {
+    const notifyReceipt = (action: "added" | "updated" | "deleted", name: string) => {
         pushNotification({
             id: Date.now(),
             title: `Receipt ${action}`,
             message:
                 action === "added"
-                    ? `Receipt from ${name} (${amount}) was added.`
+                    ? `Receipt from ${name} was added.`
                     : action === "updated"
                         ? `Receipt from ${name} was updated.`
                         : `Receipt from ${name} was deleted.`,
-            createdAt: new Date(),
+            createdAt: Date.now(), // numeric timestamp
             type: action === "deleted" ? "warning" : "success",
             read: false,
         });
@@ -49,7 +61,7 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
             id: Date.now(),
             title: `Category ${action}`,
             message: `Category "${name}" was ${action}.`,
-            createdAt: new Date(),
+            createdAt: Date.now(),
             type: action === "deleted" ? "warning" : "info",
             read: false,
         });
@@ -60,7 +72,7 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
             id: Date.now(),
             title: `Tag ${action}`,
             message: `Tag "${name}" was ${action}.`,
-            createdAt: new Date(),
+            createdAt: Date.now(),
             type: action === "deleted" ? "warning" : "info",
             read: false,
         });

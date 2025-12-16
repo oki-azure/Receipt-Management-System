@@ -110,7 +110,7 @@ export interface Notification {
     id: number;
     title: string;
     message: string;
-    createdAt: Date;
+    createdAt: number;
     type: "success" | "info" | "warning";
     read: boolean;
 }

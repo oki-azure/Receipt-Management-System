@@ -2,6 +2,7 @@ import React, { useRef } from 'react';
 import { Link, useParams, useNavigate } from 'react-router-dom';
 import { getReceiptById, deleteReceipt } from '../utils/receipts';
 import { getTransactionById, deleteTransaction } from '../utils/transactions';
+import { useNotifications } from '@/context/NotificationContext';
 
 
 const ReceiptDetail: React.FC = () => {
@@ -15,6 +16,8 @@ const ReceiptDetail: React.FC = () => {
     const transaction = receipt ? getTransactionById(receipt.transactionId) : null;
 
     const containerRef = useRef<HTMLDivElement>(null);
+
+    const { notifyReceipt } = useNotifications();
 
     if (!receipt || !transaction) {
         return (
@@ -30,6 +33,7 @@ const ReceiptDetail: React.FC = () => {
     const handleDelete = () => {
         deleteReceipt(receipt.id);
         deleteTransaction(receipt.transactionId);
+        notifyReceipt("deleted", transaction.vendor);
         navigate('/receipts');
     };
 
@@ -73,7 +77,7 @@ const ReceiptDetail: React.FC = () => {
                     <p className="text-gray-500">Receipt from your visit on {transaction.date}</p>
                 </div>
                 <div className="flex gap-3">
-                    <button
+                    {/* <button
                         onClick={() => navigate(`/receipts/${receipt.id}/edit`)}
                         className="rounded-lg bg-gray-200 px-4 py-2 text-sm font-bold text-slate-900 hover:bg-gray-300"
                     >
@@ -84,7 +88,7 @@ const ReceiptDetail: React.FC = () => {
                         className="rounded-lg bg-gray-200 px-4 py-2 text-sm font-bold text-danger hover:bg-red-50"
                     >
                         Delete
-                    </button>
+                    </button> */}
                 </div>
             </div>
 
@@ -97,7 +101,7 @@ const ReceiptDetail: React.FC = () => {
                         <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
                             <div>
                                 <p className="text-sm text-gray-500">Total Amount</p>
-                                <p className="text-2xl font-bold text-primary">${transaction.amount.toFixed(2)}</p>
+                                <p className="text-2xl font-bold text-primary">GH₵{transaction.amount.toFixed(2)}</p>
                             </div>
                             <div>
                                 <p className="text-sm text-gray-500">Merchant</p>
@@ -109,15 +113,30 @@ const ReceiptDetail: React.FC = () => {
                             </div>
                             <div>
                                 <p className="text-sm text-gray-500">Category</p>
-                                <span className="inline-flex items-center rounded-full bg-orange-100 px-2 py-1 text-xs font-semibold text-orange-700">
-                                    {transaction.category}
-                                </span>
+                                <p className="text-sm font-medium text-slate-900">{transaction.category}</p>
                             </div>
                         </div>
 
-                        <div className="mt-6 border-t border-gray-100 pt-6">
+                        {/* Tags */}
+                        {receipt.tags && receipt.tags.length > 0 && (
+                            <div className="mt-6 border-t border-gray-500 pt-6">
+                                <p className="text-sm text-gray-500">Tags</p>
+                                <div className="mt-2 flex flex-wrap gap-2">
+                                    {receipt.tags.map((tag, idx) => (
+                                        <span
+                                            key={idx}
+                                            className="inline-flex items-center rounded-full bg-blue-100 px-2 py-1 text-xs font-semibold text-blue-700"
+                                        >
+                                            {tag}
+                                        </span>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
+
+                        <div className="mt-6 border-t border-gray-500 pt-6">
                             <h4 className="mb-2 text-sm font-bold text-slate-900">Notes</h4>
-                            <p className="text-sm text-gray-500">{receipt.notes || 'No notes added.'}</p>
+                            <p className="whitespace-pre-line text-sm text-gray-500">{receipt.notes || 'No notes added.'}</p>
                         </div>
                     </div>
                 </div>

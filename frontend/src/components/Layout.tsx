@@ -21,8 +21,6 @@ const Layout: React.FC = () => {
     const navItems = [
         { name: 'Dashboard', icon: 'dashboard', path: '/' },
         { name: 'Receipts', icon: 'receipt_long', path: '/receipts' },
-        { name: 'Reports', icon: 'bar_chart', path: '/reports' },
-        { name: 'Categories', icon: 'sell', path: '/categories' },
         { name: 'Settings', icon: 'settings', path: '/settings' },
     ];
 
@@ -30,87 +28,99 @@ const Layout: React.FC = () => {
         <div className="flex h-screen w-full overflow-hidden">
             {/* Sidebar */}
             {isSidebarOpen && (
-                <aside className="fixed inset-y-0 left-0 z-40 w-72 flex-col border-r border-gray-200 bg-white lg:flex">
-                    <div className="flex items-center justify-between px-4 py-4 border-b">
-                        <span className="text-lg font-bold text-slate-900">ReceiptManager</span>
-                        <button
-                            className="text-slate-500"
-                            onClick={() => setIsSidebarOpen(false)}
-                        >
-                            <span className="material-symbols-outlined">close</span>
-                        </button>
-                    </div>
+                <>
+                    {/* Backdrop */}
+                    <div
+                        className="fixed inset-0 z-30 bg-black/30"
+                        onClick={() => setIsSidebarOpen(false)}
+                    ></div>
 
-                    <nav className="flex flex-1 flex-col gap-1 px-4 py-4">
-                        {navItems.map((item) => (
-                            <Link
-                                key={item.path}
-                                to={item.path}
+                    {/* Sidebar */}
+                    <aside className="fixed inset-y-0 left-0 z-40 w-72 flex flex-col border-r border-gray-200 bg-white">
+                        {/* Header */}
+                        <div className="flex items-center justify-between px-4 py-4 border-b">
+                            <span className="text-lg font-bold text-slate-900">ReceiptManager</span>
+                            <button
+                                className="text-slate-500"
                                 onClick={() => setIsSidebarOpen(false)}
-                                className={`flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors ${isActive(item.path)
-                                    ? "bg-primary/10 text-primary"
-                                    : "text-custom-gray hover:bg-gray-100 hover:text-slate-900"
-                                    }`}
                             >
-                                <span
-                                    className={`material-symbols-outlined ${isActive(item.path) ? "fill-current" : ""
+                                <span className="material-symbols-outlined cursor-pointer">close</span>
+                            </button>
+                        </div>
+
+                        {/* Nav */}
+                        <nav className="flex-1 flex flex-col gap-1 px-4 py-4">
+                            {navItems.map((item) => (
+                                <Link
+                                    key={item.path}
+                                    to={item.path}
+                                    onClick={() => setIsSidebarOpen(false)}
+                                    className={`flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors ${isActive(item.path)
+                                            ? "bg-primary/10 text-primary"
+                                            : "text-custom-gray hover:bg-gray-100 hover:text-slate-900"
                                         }`}
                                 >
-                                    {item.icon}
-                                </span>
-                                {item.name}
+                                    <span
+                                        className={`material-symbols-outlined ${isActive(item.path) ? "fill-current" : ""
+                                            }`}
+                                    >
+                                        {item.icon}
+                                    </span>
+                                    {item.name}
+                                </Link>
+                            ))}
+                        </nav>
+
+                        {/* Footer */}
+                        <div className="border-t border-gray-200 p-4 space-y-2">
+                            <Link
+                                to="/help"
+                                onClick={() => setIsSidebarOpen(false)}
+                                className="flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-custom-gray hover:bg-gray-100 hover:text-slate-900"
+                            >
+                                <span className="material-symbols-outlined">menu_book</span>
+                                User Guide
                             </Link>
-                        ))}
-                    </nav>
+                            <button
+                                onClick={() => {
+                                    logout();
+                                    navigate("/login");
+                                }}
+                                className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-left text-sm font-medium text-custom-gray hover:bg-gray-100 hover:text-slate-900 cursor-pointer"
+                            >
+                                <span className="material-symbols-outlined">logout</span>
+                                Logout
+                            </button>
 
-                    <div className="border-t border-gray-200 p-4">
-                        <Link
-                            to="/help"
-                            onClick={() => setIsSidebarOpen(false)}
-                            className="flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-custom-gray hover:bg-gray-100 hover:text-slate-900"
-                        >
-                            <span className="material-symbols-outlined">help</span>
-                            Help Center
-                        </Link>
-                        <button
-                            onClick={() => {
-                                logout();
-                                navigate("/login");
-                            }}
-                            className="mt-1 flex w-full items-center gap-3 rounded-lg px-3 py-2 text-left text-sm font-medium text-custom-gray hover:bg-gray-100 hover:text-slate-900"
-                        >
-                            <span className="material-symbols-outlined">logout</span>
-                            Logout
-                        </button>
-
-                        {/* User Info */}
-                        <div className="mt-4 flex items-center gap-3 rounded-lg border border-gray-200 p-3">
-                            <Link to="/settings" onClick={() => setIsSidebarOpen(false)}>
-                                <div className="h-10 w-10 rounded-full flex items-center justify-center bg-gray-200 text-slate-700 font-semibold">
-                                    {user?.profilePic ? (
-                                        <div
-                                            className="h-10 w-10 rounded-full bg-cover bg-center"
-                                            style={{ backgroundImage: `url(${user.profilePic})` }}
-                                        ></div>
-                                    ) : (
-                                        <span>
-                                            {user?.name
-                                                ?.split(" ")
-                                                .map((n) => n[0])
-                                                .join("")}
-                                        </span>
-                                    )}
+                            {/* User Info */}
+                            <div className="mt-4 flex items-center gap-3 rounded-lg border border-gray-200 p-3">
+                                <Link to="/settings" onClick={() => setIsSidebarOpen(false)}>
+                                    <div className="h-10 w-10 rounded-full flex items-center justify-center bg-gray-200 text-slate-700 font-semibold">
+                                        {user?.profilePic ? (
+                                            <div
+                                                className="h-10 w-10 rounded-full bg-cover bg-center"
+                                                style={{ backgroundImage: `url(${user.profilePic})` }}
+                                            ></div>
+                                        ) : (
+                                            <span>
+                                                {user?.name
+                                                    ?.split(" ")
+                                                    .map((n) => n[0])
+                                                    .join("")}
+                                            </span>
+                                        )}
+                                    </div>
+                                </Link>
+                                <div className="overflow-hidden">
+                                    <p className="truncate text-sm font-medium text-slate-900">
+                                        {user?.name}
+                                    </p>
+                                    <p className="truncate text-xs text-slate-500">{user?.email}</p>
                                 </div>
-                            </Link>
-                            <div className="overflow-hidden">
-                                <p className="truncate text-sm font-medium text-slate-900">
-                                    {user?.name}
-                                </p>
-                                <p className="truncate text-xs text-slate-500">{user?.email}</p>
                             </div>
                         </div>
-                    </div>
-                </aside>
+                    </aside>
+                </>
             )}
 
             {/* Main Content Wrapper */}
@@ -121,7 +131,7 @@ const Layout: React.FC = () => {
                             className="text-slate-500"
                             onClick={() => setIsSidebarOpen(true)}
                         >
-                            <span className="material-symbols-outlined">menu</span>
+                            <span className="material-symbols-outlined cursor-pointer">menu</span>
                         </button>
                         <Link to="/dashboard">
                             <div className="flex items-center gap-2">

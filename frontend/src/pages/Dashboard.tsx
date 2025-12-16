@@ -3,29 +3,12 @@ import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContai
 import { Link } from 'react-router-dom';
 import { type Transaction } from '../types';
 import { getTransactions } from '../utils/transactions';
-import { DashboardFilter } from '../components/Dashboard/DashboardFilter';
-import { StatsCard } from '../components/Dashboard/StatsCard';
 
 const Dashboard: React.FC = () => {
     // const [filter, setFilter] = React.useState<'week' | 'month' | 'year'>('month');
     const [transactions, setTransactions] = useState<Transaction[]>([]);
     const [totalSpending, setTotalSpending] = useState<number>(0);
-    const [monthlySpending, setMonthlySpending] = useState<number>(0); // this month only
-    const [spendingChange, setSpendingChange] = useState<number>(0);
-    const [totalReceipts, setTotalReceipts] = useState<number>(0); // this month count
-    const [receiptsChange, setReceiptsChange] = useState<number>(0);
     const [averageTransaction, setAverageTransaction] = useState<number>(0);
-    const [averageChange, setAverageChange] = useState<number>(0);
-    const [activeFilter, setActiveFilter] = useState<"week" | "month" | "year" | "all">("month");
-
-
-
-    const filterByMonth = (transactions: Transaction[], month: number, year: number) => {
-        return transactions.filter(txn => {
-            const d = new Date(txn.date);
-            return d.getMonth() === month && d.getFullYear() === year;
-        });
-    };
 
     useEffect(() => {
         setTransactions(getTransactions());
@@ -63,36 +46,9 @@ const Dashboard: React.FC = () => {
     useEffect(() => {
         const sum = transactions.reduce((acc, txn) => acc + (txn.amount ?? 0), 0);
         setTotalSpending(sum);
-
-        // Month boundaries
-        const now = new Date();
-        const thisMonth = now.getMonth();
-        const thisYear = now.getFullYear();
-        const lastMonth = thisMonth === 0 ? 11 : thisMonth - 1;
-        const lastMonthYear = thisMonth === 0 ? thisYear - 1 : thisYear;
-
-        const thisMonthTxns = filterByMonth(transactions, thisMonth, thisYear);
-        const lastMonthTxns = filterByMonth(transactions, lastMonth, lastMonthYear);
-
-        // Spending
-        const thisSpending = thisMonthTxns.reduce((acc, t) => acc + (t.amount ?? 0), 0);
-        const lastSpending = lastMonthTxns.reduce((acc, t) => acc + (t.amount ?? 0), 0);
-        setMonthlySpending(thisSpending);
-        setSpendingChange(lastSpending > 0 ? ((thisSpending - lastSpending) / lastSpending) * 100 : 0);
-
-        // Receipts (count)
-        const thisReceipts = thisMonthTxns.length;
-        const lastReceipts = lastMonthTxns.length;
-        setTotalReceipts(thisReceipts);
-        setReceiptsChange(lastReceipts > 0 ? ((thisReceipts - lastReceipts) / lastReceipts) * 100 : 0);
-
-        // Average transaction
-        const thisAvg = thisMonthTxns.length > 0 ? thisSpending / thisMonthTxns.length : 0;
-        const lastAvg = lastMonthTxns.length > 0 ? lastSpending / lastMonthTxns.length : 0;
-        setAverageTransaction(thisAvg);
-        setAverageChange(lastAvg > 0 ? ((thisAvg - lastAvg) / lastAvg) * 100 : 0);
+        const avgtxn = sum / transactions.length;
+        setAverageTransaction(avgtxn);
     }, [transactions]);
-
 
     return (
         <div className="flex flex-col gap-6">
@@ -103,9 +59,6 @@ const Dashboard: React.FC = () => {
                     <p className="text-custom-gray">Here's a summary of your spending activity.</p>
                 </div>
                 <div className="flex items-center gap-4">
-                    <div className="space-y-6">
-                        <DashboardFilter active={activeFilter} onChange={setActiveFilter} />
-                    </div>
                     <Link to="/upload" className="flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-bold text-white hover:bg-primary/90 transition">
                         <span className="material-symbols-outlined">add_circle</span>
                         Upload Receipt
@@ -115,46 +68,19 @@ const Dashboard: React.FC = () => {
 
             {/* Stats Cards */}
             <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
-                <div className="rounded-xl border border-gray-200 bg-white p-6">
-                    <p className="text-sm font-medium text-custom-gray">Total Spending (This Month)</p>
-                    <p className="mt-2 text-3xl font-bold text-slate-900">${monthlySpending.toFixed(2)}</p>
-                    <div
-                        className={`mt-1 flex items-center gap-1 text-sm font-medium ${spendingChange >= 0 ? 'text-success' : 'text-danger'
-                            }`}
-                    >
-                        <span className="material-symbols-outlined text-base">
-                            {spendingChange >= 0 ? 'arrow_upward' : 'arrow_downward'}
-                        </span>
-                        {spendingChange.toFixed(1)}% vs. last month
-                    </div>
+                <div className="rounded-xl border border-gray-200 bg-white p-6 text-center">
+                    <p className="text-sm font-medium text-custom-gray">Total Spending</p>
+                    <p className="mt-2 text-3xl font-bold text-slate-900">GH₵{!totalSpending ? 0 : totalSpending.toFixed(2)}</p>
                 </div>
 
-                <div className="rounded-xl border border-gray-200 bg-white p-6">
+                <div className="rounded-xl border border-gray-200 bg-white p-6 text-center">
                     <p className="text-sm font-medium text-custom-gray">Total Receipts</p>
-                    <p className="mt-2 text-3xl font-bold text-slate-900">{totalReceipts}</p>
-                    <div
-                        className={`mt-1 flex items-center gap-1 text-sm font-medium ${receiptsChange >= 0 ? 'text-success' : 'text-danger'
-                            }`}
-                    >
-                        <span className="material-symbols-outlined text-base">
-                            {receiptsChange >= 0 ? 'arrow_upward' : 'arrow_downward'}
-                        </span>
-                        {receiptsChange.toFixed(1)}% vs. last month
-                    </div>
+                    <p className="mt-2 text-3xl font-bold text-slate-900">{transactions? transactions.length : 0}</p>
                 </div>
 
-                <div className="rounded-xl border border-gray-200 bg-white p-6">
+                <div className="rounded-xl border border-gray-200 bg-white p-6 text-center">
                     <p className="text-sm font-medium text-custom-gray">Average Transaction Value</p>
-                    <p className="mt-2 text-3xl font-bold text-slate-900">${averageTransaction.toFixed(2)}</p>
-                    <div
-                        className={`mt-1 flex items-center gap-1 text-sm font-medium ${averageChange >= 0 ? 'text-success' : 'text-danger'
-                            }`}
-                    >
-                        <span className="material-symbols-outlined text-base">
-                            {averageChange >= 0 ? 'arrow_upward' : 'arrow_downward'}
-                        </span>
-                        {averageChange.toFixed(1)}% vs. last month
-                    </div>
+                    <p className="mt-2 text-3xl font-bold text-slate-900">GH₵{!averageTransaction? 0 : averageTransaction.toFixed(2)}</p>
                 </div>
             </div>
 
@@ -227,10 +153,6 @@ const Dashboard: React.FC = () => {
                                     </PieChart>
                                 </ResponsiveContainer>
                                 <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-                                    <span className="text-xs text-gray-500">Total</span>
-                                    <span className="text-xl font-bold text-slate-900">
-                                        ${totalSpending.toLocaleString()}
-                                    </span>
                                 </div>
                             </>
                         ) : (

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useAuth } from "../../context/AuthContext";
+import { Input } from "@/components/ui/input"
 
 const ProfileTab: React.FC = () => {
     const [user, setUser] = useState<{
@@ -110,7 +111,7 @@ const ProfileTab: React.FC = () => {
                                 <p className="text-sm text-gray-500">PNG, JPG or GIF. Max 2MB.</p>
                             </div>
                             <div className="ml-auto flex gap-3">
-                                <button onClick={handleRemovePic} className="rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-slate-700 hover:bg-gray-50">
+                                <button onClick={handleRemovePic} className="rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-slate-700 hover:bg-gray-50 cursor-pointer">
                                     Remove
                                 </button>
                                 <label className="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-white hover:bg-primary/90 cursor-pointer">
@@ -121,22 +122,22 @@ const ProfileTab: React.FC = () => {
                         </div>
 
                         {/* Name & Email */}
-                        <input
+                        <Input
                             type="text"
                             value={user.name}
                             onChange={(e) => persistUser({ ...user, name: e.target.value })}
-                            className=" p-3 w-full rounded-lg border-gray-300 text-sm focus:border-primary focus:ring-primary"
-                        />
-                        <input
+                            className=" border-gray-700"
+                        ></Input>
+                        <Input
                             type="email"
                             value={user.email}
                             onChange={(e) => persistUser({ ...user, email: e.target.value })}
-                            className=" p-3 w-full rounded-lg border-gray-300 text-sm focus:border-primary focus:ring-primary"
-                        />
+                            className="border-gray-800"
+                        ></Input>
 
                         <button
                             onClick={handleSaveProfile}
-                            className="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-white hover:bg-primary/90"
+                            className="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-white hover:bg-primary/90 cursor-pointer"
                         >
                             Save Changes
                         </button>
@@ -150,17 +151,17 @@ const ProfileTab: React.FC = () => {
                 <div className="mt-4 space-y-4">
                     {/* New Password */}
                     <div className="relative w-full">
-                        <input
+                        <Input
                             type={showNewPassword ? "text" : "password"}
                             placeholder="New Password"
                             value={newPassword}
                             onChange={(e) => setNewPassword(e.target.value)}
-                            className="p-3 w-full rounded-lg border-gray-300 text-sm focus:border-primary focus:ring-primary"
-                        />
+                            className="border-gray-700"
+                        ></Input>
                         <button
                             type="button"
                             onClick={() => setShowNewPassword(!showNewPassword)}
-                            className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-slate-900"
+                            className="absolute inset-y-0 right-3 flex items-center text-gray-500 cursor-pointer"
                         >
                             <span className="material-symbols-outlined">
                                 {showNewPassword ? "visibility" : "visibility_off"}
@@ -170,17 +171,17 @@ const ProfileTab: React.FC = () => {
 
                     {/* Confirm Password */}
                     <div className="relative w-full">
-                        <input
+                        <Input
                             type={showConfirmNewPassword ? "text" : "password"}
                             placeholder="Confirm New Password"
                             value={confirmPassword}
                             onChange={(e) => setConfirmPassword(e.target.value)}
-                            className="p-3 w-full rounded-lg border-gray-300 text-sm focus:border-primary focus:ring-primary"
-                        />
+                            className="border-gray-700"
+                        ></Input>
                         <button
                             type="button"
                             onClick={() => setShowConfirmNewPassword(!showConfirmNewPassword)}
-                            className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-slate-900"
+                            className="absolute inset-y-0 right-3 flex items-center text-gray-500 cursor-pointer"
                         >
                             <span className="material-symbols-outlined">
                                 {showConfirmNewPassword ? "visibility" : "visibility_off"}
@@ -191,7 +192,7 @@ const ProfileTab: React.FC = () => {
                     {/* Update Button */}
                     <button
                         onClick={handleUpdatePassword}
-                        className="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-white hover:bg-primary/90"
+                        className="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-white hover:bg-primary/90 cursor-pointer"
                     >
                         Update Password
                     </button>
@@ -206,7 +207,7 @@ const ProfileTab: React.FC = () => {
                 </div>
                 <button
                     onClick={handleDeleteAccount}
-                    className="rounded-lg bg-danger px-4 py-2 text-sm font-medium text-white hover:bg-danger/90"
+                    className="rounded-lg bg-danger px-4 py-2 text-sm font-medium text-white hover:bg-danger/90 cursor-pointer"
                 >
                     Delete My Account
                 </button>

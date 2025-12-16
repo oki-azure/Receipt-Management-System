@@ -3,7 +3,7 @@ import { useNotifications } from "../context/NotificationContext";
 import { formatDistanceToNow } from "date-fns";
 
 const Notifications: React.FC = () => {
-    const { notifications, markAllAsRead, clearAll } = useNotifications();
+    const { notifications, clearAll } = useNotifications();
 
     return (
         <div className="mx-auto max-w-3xl">
@@ -18,14 +18,6 @@ const Notifications: React.FC = () => {
 
                 {/* Action buttons in a bordered group */}
                 <div className="flex items-center gap-2 rounded-lg border border-gray-200 bg-white px-3 py-2 shadow-sm">
-                    <button
-                        onClick={markAllAsRead}
-                        className="flex items-center gap-2 text-sm font-medium text-primary hover:text-primary/80 transition"
-                    >
-                        <span className="material-symbols-outlined">mark_email_read</span>
-                        Mark all as read
-                    </button>
-                    <div className="h-5 w-px bg-gray-200" /> {/* divider */}
                     <button
                         onClick={clearAll}
                         className="flex items-center gap-2 text-sm font-medium text-red-500 hover:text-red-600 transition"
@@ -74,9 +66,7 @@ const Notifications: React.FC = () => {
                                     {notif.title}
                                 </h3>
                                 <span className="text-xs text-gray-500">
-                                    {formatDistanceToNow(new Date(notif.createdAt), {
-                                        addSuffix: true,
-                                    })}
+                                    {formatDistanceToNow(new Date(notif.createdAt), {addSuffix: true,})}
                                 </span>
                             </div>
                             <p className="text-sm text-gray-600">{notif.message}</p>
@@ -92,7 +82,7 @@ const Notifications: React.FC = () => {
                 {/* Empty state */}
                 {notifications.length === 0 && (
                     <div className="py-12 text-center">
-                        <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-gray-500 text-gray-400 shadow-md">
+                        <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-gray-300 text-gray-400 shadow-md">
                             <span className="material-symbols-outlined text-3xl">
                                 notifications_off
                             </span>

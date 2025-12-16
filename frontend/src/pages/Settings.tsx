@@ -1,6 +1,5 @@
 import React from 'react';
 import ProfileTab from '../components/settings/ProfileTab';
-import PreferencesTab from '../components/settings/PreferencesTab';
 import AddTagsTab from '../components/settings/AddTagsTab';
 import AddCategoriesTab from '../components/settings/AddCategoriesTab';
 
@@ -15,8 +14,8 @@ const Settings: React.FC = () => {
             </div>
 
             {/* Tab Navigation */}
-            <div className="flex overflow-x-auto border-b border-gray-200">
-                {['Profile', 'Preferences', 'Categories', 'Tags'].map((tab) => (
+            <div className=" w-86 flex overflow-x-auto border-b border-gray-200">
+                {['Profile', 'Categories', 'Tags'].map((tab) => (
                     <button
                         key={tab}
                         onClick={() => setActiveTab(tab)}
@@ -28,9 +27,7 @@ const Settings: React.FC = () => {
                         <span className="material-symbols-outlined text-lg">
                             {tab === 'Profile'
                                 ? 'person'
-                                : tab === 'Preferences'
-                                    ? 'tune'
-                                    : tab === 'Categories'
+                                : tab === 'Categories'
                                         ? 'category'
                                         : 'sell'}
                         </span>
@@ -40,7 +37,6 @@ const Settings: React.FC = () => {
             </div>
 
             {activeTab === 'Profile' && <ProfileTab />}
-            {activeTab === 'Preferences' && <PreferencesTab />}
             {activeTab === 'Categories' && <AddCategoriesTab />}
             {activeTab === 'Tags' && <AddTagsTab />}
         </div>

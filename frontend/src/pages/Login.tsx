@@ -1,6 +1,6 @@
 import React from 'react';
 import { useAuth } from '../context/AuthContext';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import '../App.css';
 
 const Login: React.FC = () => {
@@ -24,7 +24,7 @@ const Login: React.FC = () => {
         <div className="flex w-full max-w-md flex-col gap-8 rounded-2xl bg-white p-8 shadow-lg overflow-y-auto max-h-[90vh] scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
             {/* Header */}
             <div className="flex flex-col gap-2">
-                <h2 className="text-4xl font-black leading-tight text-slate-900">Welcome Back!</h2>
+                <h2 className="text-4xl font-black leading-tight text-slate-900">Welcome!</h2>
                 <p className="text-base text-custom-gray">Sign in to your account to continue.</p>
             </div>
 
@@ -70,7 +70,7 @@ const Login: React.FC = () => {
                 </div>
 
                 {/* Remember me + Forgot password */}
-                <div className="flex items-center justify-between">
+                {/* <div className="flex items-center justify-between">
                     <label className="flex items-center gap-2">
                         <input
                             type="checkbox"
@@ -81,7 +81,7 @@ const Login: React.FC = () => {
                     <a href="#" className="text-sm font-medium text-primary hover:underline">
                         Forgot password?
                     </a>
-                </div>
+                </div> */}
 
                 {/* Submit button */}
                 <button
@@ -93,12 +93,12 @@ const Login: React.FC = () => {
             </form>
 
             {/* Footer */}
-            <div className="text-center text-sm text-custom-gray">
+            {/* <div className="text-center text-sm text-custom-gray">
                 Don&apos;t have an account?{' '}
                 <Link to="/signup" className="font-semibold text-primary hover:underline">
                     Sign Up
                 </Link>
-            </div>
+            </div> */}
         </div>
     );
 };

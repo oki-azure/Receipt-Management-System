@@ -5,11 +5,12 @@ import { addTransaction, updateTransaction, getTransactionById } from '../utils/
 import { addReceipt, updateReceipt, getReceiptById } from '../utils/receipts';
 import { type Transaction, type Receipt, type Category, type Tag } from '../types';
 import { Input } from "@/components/ui/input"
-import { ChevronDownIcon } from "lucide-react";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Button } from '@/components/ui/button';
 import { Textarea } from "@/components/ui/textarea"
+import { CalendarIcon } from "lucide-react"
+import { useNotifications } from '@/context/NotificationContext';
 
 const UploadReceipt: React.FC = () => {
     const navigate = useNavigate();
@@ -32,6 +33,9 @@ const UploadReceipt: React.FC = () => {
 
     // Date Picker
     const [open, setOpen] = React.useState(false)
+
+    // Notifications
+    const { notifyReceipt } = useNotifications();
 
     // Load categories from LocalStorage on mount
     React.useEffect(() => {
@@ -144,6 +148,7 @@ const UploadReceipt: React.FC = () => {
             };
             updateReceipt(updatedReceipt);
             navigate(`/receipts/${updatedReceipt.id}`);
+            notifyReceipt("updated", vendor);
         } else {
             // Create new Transaction
             const newTransaction: Transaction = {
@@ -162,11 +167,12 @@ const UploadReceipt: React.FC = () => {
                 fileUrl: fileUrl || '',
                 uploadedAt: new Date().toISOString(),
                 notes,
-                tags: [],
+                tags: receiptTags,
                 imageUrl: imagePreview || undefined,
             };
             addReceipt(newReceipt);
             navigate('/receipts');
+            notifyReceipt("added", vendor, amount);
         }
     };
 
@@ -310,7 +316,7 @@ const UploadReceipt: React.FC = () => {
                                             className="w-48 justify-between font-normal border-gray-500"
                                         >
                                             {date ? date : "Select date"}
-                                            <ChevronDownIcon />
+                                            <CalendarIcon />
                                         </Button>
                                     </PopoverTrigger>
                                     <PopoverContent

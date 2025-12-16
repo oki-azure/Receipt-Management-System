@@ -1,4 +1,5 @@
 import { type User } from '../types';
+import users from "../data/users.json";
 
 // Simulate signup: store user info + token
 export const signup = (
@@ -25,9 +26,11 @@ export const signup = (
 
 // Simulate login: check stored user and set token
 export const login = (email: string, password: string): boolean => {
-    const storedUser: User = JSON.parse(localStorage.getItem('user') || '{}');
-    if (storedUser.email === email && storedUser.password === password) {
+    //const storedUser: User = JSON.parse(localStorage.getItem('user') || '{}');
+    const storedUser = users.find(u => u.email === email && u.password === password);
+    if (storedUser && storedUser.email === email && storedUser.password === password) {
         localStorage.setItem('authToken', crypto.randomUUID());
+        localStorage.setItem('user', JSON.stringify(storedUser));
         return true;
     }
     return false;

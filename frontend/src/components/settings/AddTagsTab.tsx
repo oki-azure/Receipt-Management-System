@@ -150,7 +150,7 @@ const AddTagsTab: React.FC = () => {
                         />
                         <button
                             onClick={addTag}
-                            className="flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-white hover:bg-primary/90"
+                            className="flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-white hover:bg-primary/90 cursor-pointer"
                         >
                             <span className="material-symbols-outlined text-lg">add</span>
                             Add
@@ -168,10 +168,10 @@ const AddTagsTab: React.FC = () => {
                                     </span>
                                 </div>
                                 <div className="flex opacity-0 transition-opacity group-hover:opacity-100">
-                                    <button className="p-1 text-gray-400 hover:text-danger" onClick={() => startEditTag(tag)}>
+                                    <button className="p-1 text-gray-400 hover:text-danger cursor-pointer" onClick={() => startEditTag(tag)}>
                                         <span className="material-symbols-outlined text-lg">edit</span>
                                     </button>
-                                    <button className="p-1 text-gray-400 hover:text-danger" onClick={() => deleteTag(tag.id)}>
+                                    <button className="p-1 text-gray-400 hover:text-danger cursor-pointer" onClick={() => deleteTag(tag.id)}>
                                         <span className="material-symbols-outlined text-lg">delete</span>
                                     </button>
                                 </div>

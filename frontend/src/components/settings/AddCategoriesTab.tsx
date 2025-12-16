@@ -140,7 +140,7 @@ const AddCategoriesTab: React.FC = () => {
                         />
                         < button
                             onClick={addCategory}
-                            className="flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-white hover:bg-primary/90"
+                            className="flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-white hover:bg-primary/90 cursor-pointer"
                         >
                             <span className="material-symbols-outlined text-lg">add</span>
                             Add
@@ -158,10 +158,10 @@ const AddCategoriesTab: React.FC = () => {
                                     </span>
                                 </div>
                                 <div className="flex opacity-0 transition-opacity group-hover:opacity-100">
-                                    <button className="p-1 text-gray-400" onClick={() => startEditCategory(cat)}>
+                                    <button className="p-1 text-gray-400 cursor-pointer" onClick={() => startEditCategory(cat)}>
                                         <span className="material-symbols-outlined text-lg">edit</span>
                                     </button>
-                                    <button className="p-1 text-gray-400 hover:text-danger" onClick={() => deleteCategory(cat.id)}>
+                                    <button className="p-1 text-gray-400 hover:text-danger cursor-pointer" onClick={() => deleteCategory(cat.id)}>
                                         <span className="material-symbols-outlined text-lg">delete</span>
                                     </button>
                                 </div>

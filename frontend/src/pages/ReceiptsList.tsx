@@ -19,7 +19,7 @@ const ReceiptsList: React.FC = () => {
     const [showDateDropdown, setShowDateDropdown] = useState(false);
     const [showCategoryDropdown, setShowCategoryDropdown] = useState(false);
     const [categories, setCategories] = useState<Category[]>([]);
-
+   
     // join each receipt with its transaction
     const joinedReceipts = receipts.map((receipt) => {
         const transaction: Transaction | undefined = getTransactionById(receipt.transactionId);
@@ -116,7 +116,7 @@ const ReceiptsList: React.FC = () => {
                     <p className="text-custom-gray">View, search, filter, and manage all your receipts.</p>
                 </div>
                 <Link to="/upload" className="flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-bold text-white hover:bg-primary/90">
-                    <span className="material-symbols-outlined">add</span>
+                    <span className="material-symbols-outlined">add_circle</span>
                     Upload Receipt
                 </Link>
             </div>
@@ -255,7 +255,7 @@ const ReceiptsList: React.FC = () => {
                                         <td className="px-6 py-4 text-slate-600">{receipt.vendor}</td>
                                         <td className="px-6 py-4 text-slate-600">{receipt.category}</td>
                                         <td className="px-6 py-4 text-right font-mono text-slate-900">
-                                            ${receipt.amount.toFixed(2)}
+                                            GH₵{receipt.amount.toFixed(2)}
                                         </td>
                                         <td className="px-6 py-4 text-right">
                                             <Tooltip>
