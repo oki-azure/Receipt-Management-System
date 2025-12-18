@@ -1,17 +1,14 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { getReceipts } from '../utils/receipts';
-import { getTransactionById } from '../utils/transactions';
-import { type Receipt, type Transaction, type Category } from '../types';
-import { deleteReceipt } from '../utils/receipts';
-import { deleteTransaction } from '../utils/transactions';
+import { type Receipt, type Category } from '../types';
 import Pagination from '../components/ReceiptsListPagination';
 import { Tooltip, TooltipContent, TooltipTrigger, } from "@/components/ui/tooltip"
+import { useAuth } from '@/context/AuthContext';
+import { getReceipts } from '@/utils/receipts';
 
 const ReceiptsList: React.FC = () => {
-    const [selected, setSelected] = useState<string[]>([]);
-    const [searchTerm, setSearchTerm] = useState('');
-    const [receipts, setReceipts] = useState<Receipt[]>(getReceipts());
+    const [searchTerm, setSearchTerm] = useState("");
+    const [receipts, setReceipts] = useState<Receipt[]>([]);
     const [currentPage, setCurrentPage] = useState(1);
     const itemsPerPage = 10;
     const [dateRange, setDateRange] = useState<[Date | null, Date | null]>([null, null]);
@@ -19,26 +16,27 @@ const ReceiptsList: React.FC = () => {
     const [showDateDropdown, setShowDateDropdown] = useState(false);
     const [showCategoryDropdown, setShowCategoryDropdown] = useState(false);
     const [categories, setCategories] = useState<Category[]>([]);
-   
-    // join each receipt with its transaction
-    const joinedReceipts = receipts.map((receipt) => {
-        const transaction: Transaction | undefined = getTransactionById(receipt.transactionId);
-        return {
-            id: receipt.id,
-            date: transaction?.date || '',
-            vendor: transaction?.vendor || '',
-            category: transaction?.category || '',
-            amount: transaction?.amount || 0,
+
+    const { token } = useAuth();
+
+    // Fetch receipts from backend
+    useEffect(() => {
+        const fetchReceipts = async () => {
+            if (!token) return;
+            const data = await getReceipts(token);
+            setReceipts(data);
         };
-    });
+        fetchReceipts();
+    }, [token]);
 
-    const filteredReceipts = joinedReceipts.filter((r) => {
+    // Filtering logic
+    const filteredReceipts = receipts.filter((r) => {
         const matchesSearch =
-            r.vendor.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            r.vendor_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
             r.category.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            r.amount.toString().includes(searchTerm);
+            r.total_amount.toString().includes(searchTerm);
 
-        const receiptDate = r.date ? new Date(r.date) : null;
+        const receiptDate = r.purchase_date ? new Date(r.purchase_date) : null;
         const inDateRange =
             (!dateRange[0] || (receiptDate && receiptDate >= dateRange[0])) &&
             (!dateRange[1] || (receiptDate && receiptDate <= dateRange[1]));
@@ -48,40 +46,7 @@ const ReceiptsList: React.FC = () => {
         return matchesSearch && inDateRange && inCategory;
     });
 
-
-    const toggleSelection = (id: string) => {
-        if (selected.includes(id)) {
-            setSelected(selected.filter(s => s !== id));
-        } else {
-            setSelected([...selected, id]);
-        }
-    };
-
-    const toggleAll = () => {
-        if (selected.length === receipts.length) {
-            setSelected([]);
-        } else {
-            setSelected(receipts.map(r => r.id));
-        }
-    };
-
-    const handleBulkDelete = () => {
-        selected.forEach((id) => {
-            const receipt = receipts.find((r) => r.id === id);
-            if (receipt) {
-                deleteReceipt(receipt.id);
-                deleteTransaction(receipt.transactionId);
-            }
-        });
-        setSelected([]);
-
-        // Refresh the receipts state directly instead of reloading
-        const updatedReceipts = getReceipts();
-        setReceipts(updatedReceipts); // <-- use a state hook for receipts
-
-    };
-
-
+    // Pagination
     const totalItems = filteredReceipts.length;
     const totalPages = Math.max(1, Math.ceil(totalItems / itemsPerPage));
 
@@ -95,6 +60,7 @@ const ReceiptsList: React.FC = () => {
         return filteredReceipts.slice(start, end);
     }, [filteredReceipts, currentPage]);
 
+    // Load categories from LocalStorage
     useEffect(() => {
         const stored = localStorage.getItem("categories");
         if (stored) {
@@ -106,6 +72,13 @@ const ReceiptsList: React.FC = () => {
         }
     }, []);
 
+    const formatDate = (isoString: string) => {
+        const d = new Date(isoString);
+        const day = String(d.getDate()).padStart(2, "0");
+        const month = String(d.getMonth() + 1).padStart(2, "0");
+        const year = String(d.getFullYear()).slice(-2);
+        return `${day}-${month}-${year}`;
+    };
 
     return (
         <div className="flex flex-col gap-6">
@@ -205,35 +178,16 @@ const ReceiptsList: React.FC = () => {
                     </div>
                 </div>
 
-                {/* Bulk Actions */}
-                {selected.length > 0 && (
-                    <div className="flex items-center justify-between bg-gray-50 px-4 py-2">
-                        <button onClick={handleBulkDelete} className="flex items-center gap-1 rounded-lg bg-danger px-3 py-1.5 text-sm font-bold text-white hover:bg-danger/90">
-                            <span className="material-symbols-outlined text-sm">delete</span>
-                            Delete Selected
-                        </button>
-                    </div>
-                )}
-
                 {/* Table */}
                 <div className="overflow-x-auto">
                     <table className="w-full text-left text-sm">
                         <thead className="border-b border-gray-200 bg-gray-50 text-xs font-semibold uppercase text-gray-500">
                             <tr>
-                                <th scope="col" className="px-6 py-3 w-10">
-                                    <input
-                                        type="checkbox"
-                                        checked={selected.length === receipts.length && receipts.length !== 0}
-                                        onChange={toggleAll}
-                                        className="rounded border-gray-300 text-primary focus:ring-primary"
-                                        readOnly
-                                    />
-                                </th>
                                 <th scope="col" className="px-6 py-3">Date</th>
                                 <th scope="col" className="px-6 py-3">Merchant</th>
                                 <th scope="col" className="px-6 py-3">Category</th>
                                 <th scope="col" className="px-6 py-3 text-right">Amount</th>
-                                <th scope="col" className="px-6 py-3 text-right"></th>
+                                <th scope="col" className="px-6 py-3 text-right">Action</th>
                             </tr>
                         </thead>
 
@@ -241,21 +195,13 @@ const ReceiptsList: React.FC = () => {
                             {paginatedReceipts.length > 0 ? (
                                 paginatedReceipts.map((receipt) => (
                                     <tr key={receipt.id} className="hover:bg-gray-50">
-                                        <td className="px-6 py-4">
-                                            <input
-                                                type="checkbox"
-                                                checked={selected.includes(receipt.id)}
-                                                onChange={() => toggleSelection(receipt.id)}
-                                                className="rounded border-gray-300 text-primary focus:ring-primary"
-                                            />
-                                        </td>
                                         <td className="px-6 py-4 font-medium text-slate-900 whitespace-nowrap">
-                                            {receipt.date}
+                                            {formatDate(receipt.purchase_date)}
                                         </td>
-                                        <td className="px-6 py-4 text-slate-600">{receipt.vendor}</td>
+                                        <td className="px-6 py-4 text-slate-600">{receipt.vendor_name}</td>
                                         <td className="px-6 py-4 text-slate-600">{receipt.category}</td>
                                         <td className="px-6 py-4 text-right font-mono text-slate-900">
-                                            GH₵{receipt.amount.toFixed(2)}
+                                            GH₵{Number(receipt.total_amount).toFixed(2)}
                                         </td>
                                         <td className="px-6 py-4 text-right">
                                             <Tooltip>
@@ -271,14 +217,13 @@ const ReceiptsList: React.FC = () => {
                                                     <p>View</p>
                                                 </TooltipContent>
                                             </Tooltip>
-
                                         </td>
                                     </tr>
                                 ))
                             ) : (
                                 <tr>
                                     <td
-                                        colSpan={6}
+                                        colSpan={5}
                                         className="px-6 py-4 text-center text-sm text-gray-500"
                                     >
                                         {receipts.length === 0

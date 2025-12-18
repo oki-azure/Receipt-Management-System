@@ -1,11 +1,3 @@
-export interface Transaction {
-    id: string;
-    vendor: string;
-    amount: number;
-    category: string;
-    date: string;
-}
-
 export interface Category {
     id: string;
     name: string;
@@ -19,20 +11,26 @@ export interface Tag {
 }
 
 export interface Receipt {
-    id: string;
-    transactionId: string; // Link to Transaction
-    fileUrl: string;
-    uploadedAt: string;
+    id: number;
+    vendor_name: string;
+    total_amount: number;
+    purchase_date: string; // ISO date string
+    category: string;
     notes?: string;
-    tags?: string[];
+    user_id: number;
+    created_at?: string; // only present on POST response
+    fileUrl?: string;
     imageUrl?: string;
 }
 
+
+export interface Transaction { }
+
 export interface User {
-    id: string;
+    id: number;
     name: string;
     email: string;
-    password: string;
+    password?: string;
     profilePic?: string;
 }
 
@@ -65,10 +63,10 @@ export interface AuthContextType {
     token: string | null;
     isLoggedIn: boolean;
     isHydrating: boolean;
-    login: (email: string, password: string) => boolean;
-    signup: (fullName: string, email: string, password: string, confirmPassword: string) => boolean;
+    login: (email: string, password: string) => Promise<boolean>;
     logout: () => void;
     deleteAccount: () => void;
+    setUser: React.Dispatch<React.SetStateAction<User | null>>;
 }
 
 export interface Preferences {

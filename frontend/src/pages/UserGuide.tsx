@@ -5,7 +5,7 @@ const sections = [
     { id: 'dashboard', title: 'Dashboard Overview' },
     { id: 'uploading', title: 'Uploading Receipts' },
     { id: 'managing', title: 'Managing Receipts' },
-    { id: 'settings', title: 'Account Settings' },
+    { id: 'profile', title: 'Personal Profile' },
 ];
 
 const UserGuide: React.FC = () => {
@@ -88,10 +88,11 @@ const UserGuide: React.FC = () => {
                                 <button
                                     key={section.id}
                                     onClick={() => scrollTo(section.id)}
-                                    className={`text-left px-3 py-2 text-sm font-medium rounded-lg transition-colors ${activeSection === section.id
+                                    className={`text-left px-3 py-2 text-sm font-medium rounded-lg transition-colors cursor-pointer ${activeSection === section.id
                                         ? 'bg-primary/10 text-primary'
                                         : 'text-gray-600 hover:bg-gray-50 hover:text-slate-900'
-                                        }`}
+                                        }`
+                                    }
                                 >
                                     {section.title}
                                 </button>
@@ -161,13 +162,6 @@ const UserGuide: React.FC = () => {
                                         <div>
                                             <span className="block font-semibold text-slate-900 text-sm">Custom Categories</span>
                                             <span className="text-xs text-gray-500">Organize data your way.</span>
-                                        </div>
-                                    </div>
-                                    <div className="flex gap-3 items-start p-3 bg-gray-50 rounded-lg">
-                                        <span className="material-symbols-outlined text-primary mt-1">sell</span>
-                                        <div>
-                                            <span className="block font-semibold text-slate-900 text-sm">Custom Tags</span>
-                                            <span className="text-xs text-gray-500">Further organize data your way using esoteric labels.</span>
                                         </div>
                                     </div>
                                 </div>
@@ -263,40 +257,33 @@ const UserGuide: React.FC = () => {
                                         <li>Category (e.g., Food, Travel)</li>
                                     </ul>
                                 </div>
-                                <div>
-                                    <h4 className="font-bold text-slate-900 mb-2">Bulk Actions</h4>
-                                    <p className="text-sm text-gray-600">
-                                        Select multiple receipts using the checkboxes on the left. Once selected, a toolbar appears allowing you to
-                                        <span className="text-danger font-medium"> Delete</span> them in batches.
-                                    </p>
-                                </div>
                             </div>
                         </div>
                     </section>
 
-                    {/* Settings */}
-                    <section id="settings" className="scroll-mt-8">
+                    {/* Profile */}
+                    <section id="profile" className="scroll-mt-8">
                         <h2 className="text-2xl font-bold text-slate-900 mb-4 flex items-center gap-2">
-                            <span className="material-symbols-outlined text-gray-400">settings</span>
-                            Account Settings
+                            <span className="material-symbols-outlined text-gray-400">person</span>
+                            Personal Profile
                         </h2>
                         <div className="bg-white rounded-xl border border-gray-200 p-8">
                             <p className="text-slate-700 mb-4">
-                                Navigate to Settings to manage your personal profile and add Categories and Tags.
+                                Navigate to Profile to view your personal profile.
                             </p>
                             <ul className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                 <li className="flex items-center gap-3 p-3 border border-gray-100 rounded-lg hover:bg-gray-50 transition-colors">
                                     <span className="material-symbols-outlined text-gray-400">person</span>
                                     <span className="text-sm font-medium text-slate-900">Update Profile</span>
                                 </li>
-                                <li className="flex items-center gap-3 p-3 border border-gray-100 rounded-lg hover:bg-gray-50 transition-colors">
+                                {/* <li className="flex items-center gap-3 p-3 border border-gray-100 rounded-lg hover:bg-gray-50 transition-colors">
                                     <span className="material-symbols-outlined text-gray-400">category</span>
                                     <span className="text-sm font-medium text-slate-900">Add Categories</span>
                                 </li>
                                 <li className="flex items-center gap-3 p-3 border border-gray-100 rounded-lg hover:bg-gray-50 transition-colors">
                                     <span className="material-symbols-outlined text-gray-400">sell</span>
                                     <span className="text-sm font-medium text-slate-900">Add tags</span>
-                                </li>
+                                </li> */}
                             </ul>
                         </div>
                     </section>

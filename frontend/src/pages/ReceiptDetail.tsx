@@ -1,41 +1,36 @@
-import React, { useRef } from 'react';
-import { Link, useParams, useNavigate } from 'react-router-dom';
-import { getReceiptById, deleteReceipt } from '../utils/receipts';
-import { getTransactionById, deleteTransaction } from '../utils/transactions';
-import { useNotifications } from '@/context/NotificationContext';
+import React, { useEffect, useRef, useState } from 'react';
+import { Link, useParams } from 'react-router-dom';
+import { getReceiptById } from '../utils/receipts';
+import { useAuth } from '@/context/AuthContext';
+import type { Receipt } from '@/types';
+import { Spinner } from '@/components/ui/spinner';
 
 
 const ReceiptDetail: React.FC = () => {
     const { id } = useParams();
-    const navigate = useNavigate();
-
+    const { token } = useAuth();
+    const [receipt, setReceipt] = useState<Receipt | null>(null);
     const [scale, setScale] = React.useState(1);
     const [rotation, setRotation] = React.useState(0);
-
-    const receipt = id ? getReceiptById(id) : null;
-    const transaction = receipt ? getTransactionById(receipt.transactionId) : null;
-
     const containerRef = useRef<HTMLDivElement>(null);
 
-    const { notifyReceipt } = useNotifications();
+    useEffect(() => {
+        const fetchReceipt = async () => {
+            if (id && token) {
+                const data = await getReceiptById(Number(id), token);
+                setReceipt(data);
+            }
+        };
+        fetchReceipt();
+    }, [id, token]);
 
-    if (!receipt || !transaction) {
+    if (!receipt) {
         return (
-            <div className="mx-auto max-w-6xl">
-                <p className="text-gray-500">Receipt not found.</p>
-                <Link to="/receipts" className="text-primary hover:underline">
-                    Back to Receipts
-                </Link>
+            <div className="flex h-screen items-center justify-center">
+                <Spinner className="w-16 h-16" />
             </div>
         );
     }
-
-    const handleDelete = () => {
-        deleteReceipt(receipt.id);
-        deleteTransaction(receipt.transactionId);
-        notifyReceipt("deleted", transaction.vendor);
-        navigate('/receipts');
-    };
 
     const handleMouseDown = (e: React.MouseEvent) => {
         if (!containerRef.current) return;
@@ -60,6 +55,13 @@ const ReceiptDetail: React.FC = () => {
         document.addEventListener("mouseup", onMouseUp);
     };
 
+    const formatDate = (isoString: string) => {
+        const d = new Date(isoString);
+        const day = String(d.getDate()).padStart(2, "0");
+        const month = String(d.getMonth() + 1).padStart(2, "0");
+        const year = String(d.getFullYear()).slice(-2);
+        return `${day}-${month}-${year}`;
+    };
 
     return (
         <div className="mx-auto max-w-6xl">
@@ -67,28 +69,21 @@ const ReceiptDetail: React.FC = () => {
             <div className="mb-6 flex items-center gap-2 text-sm font-medium">
                 <Link to="/receipts" className="text-gray-500 hover:text-primary">Receipts</Link>
                 <span className="text-gray-400">/</span>
-                <span className="text-slate-900">{transaction.vendor}</span>
+                <span className="text-slate-900">{receipt.vendor_name}</span>
             </div>
 
             {/* Header */}
             <div className="mb-8 flex flex-wrap items-start justify-between gap-4">
                 <div>
-                    <h1 className="text-3xl font-bold text-slate-900">{transaction.vendor}</h1>
-                    <p className="text-gray-500">Receipt from your visit on {transaction.date}</p>
-                </div>
-                <div className="flex gap-3">
-                    {/* <button
-                        onClick={() => navigate(`/receipts/${receipt.id}/edit`)}
-                        className="rounded-lg bg-gray-200 px-4 py-2 text-sm font-bold text-slate-900 hover:bg-gray-300"
-                    >
-                        Edit Receipt
-                    </button>
-                    <button
-                        onClick={handleDelete}
-                        className="rounded-lg bg-gray-200 px-4 py-2 text-sm font-bold text-danger hover:bg-red-50"
-                    >
-                        Delete
-                    </button> */}
+                    <h1 className="text-3xl font-bold text-slate-900">{receipt.vendor_name}</h1>
+                    <p className="text-gray-500">
+                        Receipt from your visit on{" "}
+                        {new Date(receipt.purchase_date).toLocaleDateString("en-GB", {
+                            day: "2-digit",
+                            month: "2-digit",
+                            year: "2-digit",
+                        })}
+                    </p>
                 </div>
             </div>
 
@@ -101,38 +96,21 @@ const ReceiptDetail: React.FC = () => {
                         <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
                             <div>
                                 <p className="text-sm text-gray-500">Total Amount</p>
-                                <p className="text-2xl font-bold text-primary">GH₵{transaction.amount.toFixed(2)}</p>
+                                <p className="text-2xl font-bold text-primary">GH₵{Number(receipt.total_amount).toFixed(2)}</p>
                             </div>
                             <div>
                                 <p className="text-sm text-gray-500">Merchant</p>
-                                <p className="text-sm font-medium text-slate-900">{transaction.vendor}</p>
+                                <p className="text-sm font-medium text-slate-900">{receipt.vendor_name}</p>
                             </div>
                             <div>
                                 <p className="text-sm text-gray-500">Date</p>
-                                <p className="text-sm font-medium text-slate-900">{transaction.date}</p>
+                                <p className="text-sm font-medium text-slate-900">{formatDate(receipt.purchase_date)}</p>
                             </div>
                             <div>
                                 <p className="text-sm text-gray-500">Category</p>
-                                <p className="text-sm font-medium text-slate-900">{transaction.category}</p>
+                                <p className="text-sm font-medium text-slate-900">{receipt.category}</p>
                             </div>
                         </div>
-
-                        {/* Tags */}
-                        {receipt.tags && receipt.tags.length > 0 && (
-                            <div className="mt-6 border-t border-gray-500 pt-6">
-                                <p className="text-sm text-gray-500">Tags</p>
-                                <div className="mt-2 flex flex-wrap gap-2">
-                                    {receipt.tags.map((tag, idx) => (
-                                        <span
-                                            key={idx}
-                                            className="inline-flex items-center rounded-full bg-blue-100 px-2 py-1 text-xs font-semibold text-blue-700"
-                                        >
-                                            {tag}
-                                        </span>
-                                    ))}
-                                </div>
-                            </div>
-                        )}
 
                         <div className="mt-6 border-t border-gray-500 pt-6">
                             <h4 className="mb-2 text-sm font-bold text-slate-900">Notes</h4>
@@ -166,7 +144,7 @@ const ReceiptDetail: React.FC = () => {
                                     <span className="material-symbols-outlined text-xl">rotate_right</span>
                                 </button>
                                 <a
-                                    href={receipt.fileUrl}
+                                    href={'#'}
                                     download
                                     className="flex h-9 w-9 items-center justify-center rounded-lg text-gray-600 hover:bg-gray-100"
                                 >

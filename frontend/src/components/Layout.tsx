@@ -21,7 +21,6 @@ const Layout: React.FC = () => {
     const navItems = [
         { name: 'Dashboard', icon: 'dashboard', path: '/' },
         { name: 'Receipts', icon: 'receipt_long', path: '/receipts' },
-        { name: 'Settings', icon: 'settings', path: '/settings' },
     ];
 
     return (
@@ -94,7 +93,7 @@ const Layout: React.FC = () => {
 
                             {/* User Info */}
                             <div className="mt-4 flex items-center gap-3 rounded-lg border border-gray-200 p-3">
-                                <Link to="/settings" onClick={() => setIsSidebarOpen(false)}>
+                                <Link to="/profile" onClick={() => setIsSidebarOpen(false)}>
                                     <div className="h-10 w-10 rounded-full flex items-center justify-center bg-gray-200 text-slate-700 font-semibold">
                                         {user?.profilePic ? (
                                             <div
@@ -158,7 +157,7 @@ const Layout: React.FC = () => {
                             </span>
                         </button>
 
-                        <Link to="/settings">
+                        <Link to="/profile">
                             <div className="h-8 w-8 rounded-full flex items-center justify-center bg-gray-200 text-slate-700 font-semibold">
                                 {user?.profilePic ? (
                                     <div

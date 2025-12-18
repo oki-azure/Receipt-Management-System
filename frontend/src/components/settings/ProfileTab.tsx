@@ -1,46 +1,24 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { useAuth } from "../../context/AuthContext";
-import { Input } from "@/components/ui/input"
+import { Input } from "@/components/ui/input";
 
 const ProfileTab: React.FC = () => {
-    const [user, setUser] = useState<{
-        id: string;
-        name: string;
-        email: string;
-        password: string;
-        profilePic?: string;
-    } | null>(null);
-    const [showNewPassword, setShowNewPassword] = React.useState(false);
-    const [showConfirmNewPassword, setShowConfirmNewPassword] = React.useState(false);
+    const { user, /* setUser */ } = useAuth(); // <-- get user from context
+    const [showNewPassword, setShowNewPassword] = useState(false);
+    const [showConfirmNewPassword, setShowConfirmNewPassword] = useState(false);
     const [newPassword, setNewPassword] = useState("");
     const [confirmPassword, setConfirmPassword] = useState("");
-    const { logout } = useAuth();
-
-    // Load user from LocalStorage
-    useEffect(() => {
-        const storedUser = localStorage.getItem("user");
-        if (storedUser) {
-            setUser(JSON.parse(storedUser));
-        }
-    }, []);
-
-    // Save user back to LocalStorage
-    const persistUser = (updatedUser: typeof user) => {
-        if (!updatedUser) return;
-        setUser(updatedUser);
-        localStorage.setItem("user", JSON.stringify(updatedUser));
-    };
 
     // Handlers
-    const handleSaveProfile = () => {
+    /* const handleSaveProfile = () => {
         if (!user) return;
-        persistUser(user);
+        // Here you’d call backend PUT /user to persist changes
         alert("Profile updated!");
     };
 
     const handleRemovePic = () => {
         if (!user) return;
-        persistUser({ ...user, profilePic: "" });
+        setUser({ ...user, profilePic: "" });
     };
 
     const handleUploadPic = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -48,7 +26,7 @@ const ProfileTab: React.FC = () => {
             const reader = new FileReader();
             reader.onload = () => {
                 if (!user) return;
-                persistUser({ ...user, profilePic: reader.result as string });
+                setUser({ ...user, profilePic: reader.result as string });
             };
             reader.readAsDataURL(e.target.files[0]);
         }
@@ -60,28 +38,11 @@ const ProfileTab: React.FC = () => {
             return;
         }
 
-        // Update LocalStorage user object
-        const storedUser = localStorage.getItem("user");
-        if (storedUser) {
-            const user = JSON.parse(storedUser);
-            const updatedUser = { ...user, password: newPassword };
-            localStorage.setItem("user", JSON.stringify(updatedUser));
-        }
-
+        // Call backend endpoint to update password
         alert("Password updated!");
-
-        // Clear fields after update
         setNewPassword("");
         setConfirmPassword("");
-    };
-
-
-    const handleDeleteAccount = () => {
-        if (window.confirm("Are you sure you want to delete your account?")) {
-            logout();
-            alert("Account deleted.");
-        }
-    };
+    }; */
 
     return (
         <>
@@ -111,13 +72,16 @@ const ProfileTab: React.FC = () => {
                                 <p className="text-sm text-gray-500">PNG, JPG or GIF. Max 2MB.</p>
                             </div>
                             <div className="ml-auto flex gap-3">
-                                <button onClick={handleRemovePic} className="rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-slate-700 hover:bg-gray-50 cursor-pointer">
+                                {/* <button
+                                    onClick={handleRemovePic}
+                                    className="rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-slate-700 hover:bg-gray-50 cursor-pointer"
+                                >
                                     Remove
                                 </button>
                                 <label className="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-white hover:bg-primary/90 cursor-pointer">
                                     Upload Image
                                     <input type="file" accept="image/*" onChange={handleUploadPic} className="hidden" />
-                                </label>
+                                </label> */}
                             </div>
                         </div>
 
@@ -125,22 +89,24 @@ const ProfileTab: React.FC = () => {
                         <Input
                             type="text"
                             value={user.name}
-                            onChange={(e) => persistUser({ ...user, name: e.target.value })}
+                            /* onChange={(e) => setUser({ ...user, name: e.target.value })} */
                             className=" border-gray-700"
-                        ></Input>
+                            disabled
+                        />
                         <Input
                             type="email"
                             value={user.email}
-                            onChange={(e) => persistUser({ ...user, email: e.target.value })}
+                            /* onChange={(e) => setUser({ ...user, email: e.target.value })} */
                             className="border-gray-800"
-                        ></Input>
+                            disabled
+                        />
 
-                        <button
+                        {/* <button
                             onClick={handleSaveProfile}
                             className="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-white hover:bg-primary/90 cursor-pointer"
                         >
                             Save Changes
-                        </button>
+                        </button> */}
                     </div>
                 </div>
             )}
@@ -191,26 +157,12 @@ const ProfileTab: React.FC = () => {
 
                     {/* Update Button */}
                     <button
-                        onClick={handleUpdatePassword}
+                        /* onClick={handleUpdatePassword} */
                         className="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-white hover:bg-primary/90 cursor-pointer"
                     >
                         Update Password
                     </button>
                 </div>
-            </div>
-
-            {/* Delete account */}
-            <div className="flex justify-between items-center rounded-xl border border-red-200 bg-white p-6 mt-6">
-                <div>
-                    <h2 className="text-lg font-bold text-danger">Delete Account</h2>
-                    <p className="text-sm text-gray-500">Permanently delete your account and all associated data.</p>
-                </div>
-                <button
-                    onClick={handleDeleteAccount}
-                    className="rounded-lg bg-danger px-4 py-2 text-sm font-medium text-white hover:bg-danger/90 cursor-pointer"
-                >
-                    Delete My Account
-                </button>
             </div>
         </>
     );

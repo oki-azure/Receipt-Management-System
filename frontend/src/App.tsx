@@ -9,9 +9,8 @@ import Dashboard from './pages/Dashboard';
 import ReceiptsList from './pages/ReceiptsList';
 import UploadReceipt from './pages/UploadReceipt';
 import ReceiptDetail from './pages/ReceiptDetail';
-import Settings from './pages/Settings';
+import ProfilePage from './pages/ProfilePage';
 import Login from './pages/Login';
-/* import SignUp from './pages/SignUp'; */
 import Notifications from './pages/Notifications';
 import UserGuide from './pages/UserGuide';
 
@@ -24,7 +23,6 @@ const App: React.FC = () => {
                         {/* Auth Routes */}
                         <Route element={<AuthLayout />}>
                             <Route path="/login" element={<Login />} />
-                            {/* <Route path="/signup" element={<SignUp />} /> */}
                         </Route>
 
                         {/* Protected App Routes with Main Layout */}
@@ -36,7 +34,7 @@ const App: React.FC = () => {
                                 <Route path="/receipts/:id/edit" element={<UploadReceipt />} />
                                 <Route path="/receipts/:id" element={<ReceiptDetail />} />
                                 <Route path="/notifications" element={<Notifications />} />
-                                <Route path="/settings" element={<Settings />} />
+                                <Route path="/profile" element={<ProfilePage />} />
                                 <Route path="/help" element={<UserGuide />} />
                             </Route>
                         </Route>

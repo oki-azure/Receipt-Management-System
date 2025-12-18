@@ -1,6 +1,6 @@
 // AuthContext.tsx
 import React, { createContext, useContext, useEffect, useState } from 'react';
-import { login as authLogin, signup as authSignup, logout as authLogout, deleteAccount as authDeleteAccount } from '../utils/auth';
+import { login as authLogin, logout as authLogout, deleteAccount as authDeleteAccount } from '../utils/auth';
 import { type AuthContextType, type User } from '../types';
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -13,47 +13,43 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     useEffect(() => {
         // Hydrate on first mount BEFORE router guards run
-        const storedUser = localStorage.getItem('user');
-        const storedToken = localStorage.getItem('authToken');
-        if (storedUser && storedToken) {
-            setUser(JSON.parse(storedUser));
+        const storedToken = localStorage.getItem('token');
+        const storedUser = localStorage.getItem("user");
+        if (storedToken) {
             setToken(storedToken);
             setIsLoggedIn(true);
+        }
+        if (storedUser) {
+            setUser(JSON.parse(storedUser));
         }
         setIsHydrating(false);
     }, []);
 
-    const login = (email: string, password: string) => {
-        const success = authLogin(email, password);
-        if (success) {
-            const storedUser = localStorage.getItem('user');
-            const storedToken = localStorage.getItem('authToken');
-            if (storedUser && storedToken) {
-                setUser(JSON.parse(storedUser));
-                setToken(storedToken);
-                setIsLoggedIn(true);
-            }
+    const login = async (email: string, password: string): Promise<boolean> => {
+        const result = await authLogin(email, password);
+
+        if (result) {
+            setToken(result.token);
+            setUser(result.user); // <-- hydrate with backend user object
+            setIsLoggedIn(true);
+            return true;
         }
-        return success;
+
+        return false;
     };
 
-    const signup = (fullName: string, email: string, password: string, confirmPassword: string) => {
-        const success = authSignup(fullName, email, password, confirmPassword);
-        if (success) {
-            const storedUser = localStorage.getItem('user');
-            const storedToken = localStorage.getItem('authToken');
-            if (storedUser && storedToken) {
-                setUser(JSON.parse(storedUser));
-                setToken(storedToken);
-                setIsLoggedIn(true);
-            }
+    const logout = async () => {
+        if (token) {
+            await authLogout(token); // call backend logout
         }
-        return success;
-    };
 
-    const logout = () => {
-        authLogout();
+        // clear localStorage
+        localStorage.removeItem("token");
+        localStorage.removeItem("user");
+
+        // reset context state
         setToken(null);
+        setUser(null);
         setIsLoggedIn(false);
     };
 
@@ -65,7 +61,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     };
 
     return (
-        <AuthContext.Provider value={{ user, token, isLoggedIn, isHydrating, login, signup, logout, deleteAccount }}>
+        <AuthContext.Provider value={{ user, token, isLoggedIn, isHydrating, login, logout, deleteAccount, setUser }}>
             {children}
         </AuthContext.Provider>
     );

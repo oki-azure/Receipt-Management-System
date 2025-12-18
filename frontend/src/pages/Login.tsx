@@ -1,7 +1,8 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import '../App.css';
+import { Spinner } from '@/components/ui/spinner';
 
 const Login: React.FC = () => {
     const [email, setEmail] = React.useState('');
@@ -10,14 +11,26 @@ const Login: React.FC = () => {
 
     const { login } = useAuth();
     const navigate = useNavigate();
+    const [loading, setLoading] = useState(false);
 
-    const handleLogin = (e: React.FormEvent) => {
+    const handleLogin = async (e: React.FormEvent) => {
         e.preventDefault();
-        if (login(email, password)) {
+        setLoading(true);
+        try {
+            await login(email, password);
+        } finally {
+            setLoading(false);
             navigate('/');
-        } else {
-            alert('Invalid credentials');
         }
+    };
+
+    if (loading) {
+        return (
+            <div className="flex h-screen items-center justify-center">
+                <Spinner className="w-16 h-16" />
+            </div>
+        );
+
     };
 
     return (

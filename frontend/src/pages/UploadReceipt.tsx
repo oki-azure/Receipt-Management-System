@@ -1,9 +1,6 @@
-import React, { useEffect, useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
-import { v4 as uuid } from 'uuid';
-import { addTransaction, updateTransaction, getTransactionById } from '../utils/transactions';
-import { addReceipt, updateReceipt, getReceiptById } from '../utils/receipts';
-import { type Transaction, type Receipt, type Category, type Tag } from '../types';
+import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { createReceipt } from '../utils/receipts';
 import { Input } from "@/components/ui/input"
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
@@ -11,92 +8,26 @@ import { Button } from '@/components/ui/button';
 import { Textarea } from "@/components/ui/textarea"
 import { CalendarIcon } from "lucide-react"
 import { useNotifications } from '@/context/NotificationContext';
+import { useAuth } from '@/context/AuthContext';
 
 const UploadReceipt: React.FC = () => {
     const navigate = useNavigate();
-    const { id } = useParams(); // receipt id if editing
-    const isEdit = Boolean(id);
+    const { token } = useAuth();
 
     // Form state
     const [vendor, setVendor] = useState('');
     const [amount, setAmount] = useState('');
     const [date, setDate] = useState('');
     const [category, setCategory] = useState('');
-    const [categories, setCategories] = React.useState<Category[]>([]);
-    const [receiptTags, setReceiptTags] = React.useState<string[]>([]);
-    const [allTags, setAllTags] = React.useState<Tag[]>([]);
-    const [newTagInput, setNewTagInput] = React.useState("");
     const [notes, setNotes] = useState('');
     const [fileUrl, setFileUrl] = useState<string | null>(null);
     const [imagePreview, setImagePreview] = React.useState<string | null>(null);
-    const [transactionId, setTransactionId] = useState<string | null>(null);
 
     // Date Picker
     const [open, setOpen] = React.useState(false)
 
     // Notifications
     const { notifyReceipt } = useNotifications();
-
-    // Load categories from LocalStorage on mount
-    React.useEffect(() => {
-        try {
-            const rawCategories = localStorage.getItem("categories");
-            const rawTags = localStorage.getItem("tags");
-
-            if (rawCategories) {
-                setCategories(JSON.parse(rawCategories));
-            } else {
-                setCategories([]);
-            }
-
-            if (rawTags) {
-                setAllTags(JSON.parse(rawTags));
-            } else {
-                setAllTags([]);
-            }
-        } catch (err) {
-            console.error("Failed to load categories/tags from localStorage:", err);
-            setCategories([]);
-            setAllTags([]);
-        }
-    }, []);
-
-    // Pre-fill form if editing
-    useEffect(() => {
-        if (isEdit && id) {
-            const receipt = getReceiptById(id);
-            if (receipt) {
-                const transaction = getTransactionById(receipt.transactionId);
-                if (transaction) {
-                    setTransactionId(transaction.id);
-                    setVendor(transaction.vendor);
-                    setAmount(transaction.amount.toString());
-                    setDate(transaction.date);
-                    setCategory(transaction.category);
-                }
-                setNotes(receipt.notes || '');
-                setFileUrl(receipt.fileUrl);
-                setReceiptTags(receipt.tags || []);
-                setImagePreview(receipt.imageUrl || null);
-            }
-        }
-    }, [isEdit, id]);
-
-    // to clear fileURL
-    /* useEffect(() => {
-        const receipts = JSON.parse(localStorage.getItem("receipts") || "[]");
-        const updated = receipts.map((r: Receipt) =>
-            r.fileUrl === "receipt-template-us-mono-black-750px.png" ? { ...r, fileUrl: null } : r
-        );
-        localStorage.setItem("receipts", JSON.stringify(updated));
-    }, []); */
-
-    const addTag = (tagName: string) => {
-        if (!receiptTags.includes(tagName)) {
-            setReceiptTags([...receiptTags, tagName]);
-        }
-        setNewTagInput("");
-    };
 
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
@@ -117,76 +48,32 @@ const UploadReceipt: React.FC = () => {
         }
     };
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+        if (!token) return;
 
-        if (!vendor || !amount || !date || !category) {
-            alert("Please fill out all required fields.");
-            return;
-        }
+        const newReceipt = {
+            vendor_name: vendor,
+            total_amount: parseFloat(amount),
+            purchase_date: date,
+            category,
+            notes,
+            user_id: 12, // or derive from context user.id
+        };
 
-        if (isEdit && id && transactionId) {
-            // Update existing Transaction
-            const updatedTransaction: Transaction = {
-                id: transactionId,
-                vendor,
-                amount: parseFloat(amount),
-                category,
-                date,
-            };
-            updateTransaction(updatedTransaction);
-
-            // Update existing Receipt
-            const updatedReceipt: Receipt = {
-                id,
-                transactionId,
-                fileUrl: fileUrl || '',
-                uploadedAt: new Date().toISOString(),
-                notes,
-                tags: receiptTags,
-                imageUrl: imagePreview || undefined,
-            };
-            updateReceipt(updatedReceipt);
-            navigate(`/receipts/${updatedReceipt.id}`);
-            notifyReceipt("updated", vendor);
-        } else {
-            // Create new Transaction
-            const newTransaction: Transaction = {
-                id: uuid(),
-                vendor,
-                amount: parseFloat(amount),
-                category,
-                date,
-            };
-            addTransaction(newTransaction);
-
-            // Create new Receipt
-            const newReceipt: Receipt = {
-                id: uuid(),
-                transactionId: newTransaction.id,
-                fileUrl: fileUrl || '',
-                uploadedAt: new Date().toISOString(),
-                notes,
-                tags: receiptTags,
-                imageUrl: imagePreview || undefined,
-            };
-            addReceipt(newReceipt);
-            navigate('/receipts');
-            notifyReceipt("added", vendor, amount);
+        const created = await createReceipt(newReceipt, token);
+        if (created) {
+            // redirect to details page
+            notifyReceipt('added', newReceipt.vendor_name);
+            navigate(`/receipts/${created.id}`);
         }
     };
 
     return (
         <div className="mx-auto max-w-5xl">
             <div className="mb-8">
-                <h1 className="text-3xl font-bold text-slate-900">
-                    {isEdit ? 'Edit Receipt' : 'Upload New Receipt'}
-                </h1>
-                <p className="text-custom-gray">
-                    {isEdit
-                        ? 'Update your receipt details and save changes.'
-                        : 'Add your receipt details and upload a file.'}
-                </p>
+                <h1 className="text-3xl font-bold text-slate-900">Upload New Receipt</h1>
+                <p className="text-custom-gray">Add your receipt details and upload a file.</p>
             </div>
 
             <div className="grid grid-cols-1 gap-8 lg:grid-cols-2">
@@ -276,9 +163,7 @@ const UploadReceipt: React.FC = () => {
                 {/* Form */}
                 <div className="rounded-xl border border-gray-200 bg-white">
                     <div className="border-b border-gray-200 px-6 py-4">
-                        <h2 className="text-lg font-bold text-slate-900">
-                            {isEdit ? 'Edit Receipt Details' : 'Add Receipt Details'}
-                        </h2>
+                        <h2 className="text-lg font-bold text-slate-900">Add Receipt Details</h2>
                     </div>
                     <form className="space-y-5 p-6" onSubmit={handleSubmit}>
                         <div className="space-y-1">
@@ -347,63 +232,14 @@ const UploadReceipt: React.FC = () => {
 
                         <div className="space-y-1">
                             <label className="text-sm font-medium text-slate-900">Category</label>
-                            <select
+                            <input
+                                type="text"
                                 value={category}
                                 onChange={(e) => setCategory(e.target.value)}
                                 required
+                                placeholder="Enter category"
                                 className="w-full rounded-lg border border-gray-500 bg-white px-3 py-2 text-sm text-slate-900 shadow-sm focus:border-primary focus:ring-primary focus:outline-none"
-                            >
-                                <option value="" disabled>
-                                    Select category
-                                </option>
-                                {categories.map((cat) => (
-                                    <option key={cat.id} value={cat.name}>
-                                        {cat.name}
-                                    </option>
-                                ))}
-                            </select>
-                        </div>
-
-                        <div className="space-y-1">
-                            <label className="text-sm font-medium text-slate-900">Tags</label>
-                            <select
-                                value={newTagInput}
-                                onChange={(e) => {
-                                    setNewTagInput(e.target.value);
-                                    addTag(e.target.value)
-                                }}
-                                className="w-full rounded-lg border border-gray-500 bg-white px-3 py-2 text-sm text-slate-900 shadow-sm focus:border-primary focus:ring-primary focus:outline-none"
-                            >
-                                <option value="" disabled>Select a tag</option>
-                                {allTags
-                                    .filter((tag) => !receiptTags.includes(tag.name))
-                                    .map((tag) => (
-                                        <option key={tag.id} value={tag.name}>
-                                            {tag.name}
-                                        </option>
-                                    ))}
-                            </select>
-
-                            {/* Show added tags */}
-                            <div className="flex flex-wrap gap-2 pt-2">
-                                {receiptTags.map((tagName) => (
-                                    <span
-                                        key={tagName}
-                                        className="flex items-center gap-1 rounded-full bg-gray-100 px-2 py-0.5 text-xs text-gray-700"
-                                    >
-                                        {tagName}
-                                        <button
-                                            type="button"
-                                            className="text-gray-400 hover:text-danger"
-                                            onClick={() =>
-                                                setReceiptTags(receiptTags.filter((t) => t !== tagName))
-                                            }
-                                        >
-                                            <span className="material-symbols-outlined text-sm">close</span>
-                                        </button>
-                                    </span>
-                                ))}
-                            </div>
+                            />
                         </div>
 
                         <div className="space-y-1">
@@ -429,7 +265,7 @@ const UploadReceipt: React.FC = () => {
                                 type="submit"
                                 className="rounded-lg bg-primary px-4 py-2 text-sm font-bold text-white hover:bg-primary/90 cursor-pointer"
                             >
-                                {isEdit ? 'Save Changes' : 'Save Receipt'}
+                                Save Receipt
                             </Button>
                         </div>
                     </form>

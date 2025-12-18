@@ -1,15 +1,16 @@
 import React from 'react';
 import { Navigate, Outlet } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { Spinner } from './ui/spinner';
 
 const ProtectedRoute: React.FC = () => {
     const { isLoggedIn, isHydrating } = useAuth();
 
     if (isHydrating) {
-        // Show a loader while we’re restoring auth state from LocalStorage
+        // Show a loader while we’re restoring auth state
         return (
-            <div className="flex h-screen items-center justify-center text-gray-500">
-                Loading…
+            <div className="flex h-screen items-center justify-center">
+                <Spinner className="w-16 h-16" />
             </div>
         );
     }

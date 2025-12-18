@@ -1,54 +1,78 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell, PieChart, Pie } from 'recharts';
 import { Link } from 'react-router-dom';
-import { type Transaction } from '../types';
-import { getTransactions } from '../utils/transactions';
+import { type Receipt } from '../types';
+import { useAuth } from '@/context/AuthContext';
+import { getReceipts } from '@/utils/receipts';
 
 const Dashboard: React.FC = () => {
-    // const [filter, setFilter] = React.useState<'week' | 'month' | 'year'>('month');
-    const [transactions, setTransactions] = useState<Transaction[]>([]);
+    const [receipts, setReceipts] = useState<Receipt[]>([]);
     const [totalSpending, setTotalSpending] = useState<number>(0);
-    const [averageTransaction, setAverageTransaction] = useState<number>(0);
+    const [averageReceipt, setAverageReceipt] = useState<number>(0);
+
+    const { token } = useAuth();
 
     useEffect(() => {
-        setTransactions(getTransactions());
-    }, []);
+        const fetchReceipts = async () => {
+            if (!token) return;
+            const data = await getReceipts(token);
+            setReceipts(data);
+        };
+        fetchReceipts();
+    }, [token]);
 
     // Transform Data for Line Chart
     const lineData = useMemo(() => {
         const grouped: Record<string, number> = {};
 
-        transactions.forEach((t) => {
-            const date = new Date(t.date).toLocaleDateString("en-US", { month: "short", day: "numeric" });
-            grouped[date] = (grouped[date] || 0) + t.amount;
+        receipts.forEach((r) => {
+            const date = new Date(r.purchase_date).toLocaleDateString("en-US", {
+                month: "short",
+                day: "numeric",
+            });
+            grouped[date] = (grouped[date] || 0) + Number(r.total_amount);
         });
 
         return Object.entries(grouped).map(([name, value]) => ({ name, value }));
-    }, [transactions]);
+    }, [receipts]);
 
     // Transform Data for Pie Chart
     const pieData = useMemo(() => {
         const grouped: Record<string, number> = {};
 
-        transactions.forEach((t) => {
-            grouped[t.category] = (grouped[t.category] || 0) + t.amount;
+        receipts.forEach((r) => {
+            grouped[r.category] = (grouped[r.category] || 0) + Number(r.total_amount);
         });
 
-        const colors = ["#137fec", "#16a34a", "#f59e0b", "#dc2626", "#617589"];
+        // helper to generate a random hex color
+        const randomColor = () =>
+            "#" + Math.floor(Math.random() * 16777215).toString(16).padStart(6, "0");
 
-        return Object.entries(grouped).map(([name, value], i) => ({
+        return Object.entries(grouped).map(([name, value]) => ({
             name,
             value,
-            color: colors[i % colors.length],
+            color: randomColor(),
         }));
-    }, [transactions]);
+    }, [receipts]);
 
     useEffect(() => {
-        const sum = transactions.reduce((acc, txn) => acc + (txn.amount ?? 0), 0);
+        const sum = receipts.reduce(
+            (acc, r) => acc + Number(r.total_amount ?? 0),
+            0
+        );
         setTotalSpending(sum);
-        const avgtxn = sum / transactions.length;
-        setAverageTransaction(avgtxn);
-    }, [transactions]);
+
+        const avg = receipts.length > 0 ? sum / receipts.length : 0;
+        setAverageReceipt(avg);
+    }, [receipts]);
+
+    const formatDate = (isoString: string) => {
+        const d = new Date(isoString);
+        const day = String(d.getDate()).padStart(2, "0");
+        const month = String(d.getMonth() + 1).padStart(2, "0");
+        const year = String(d.getFullYear()).slice(-2);
+        return `${day}-${month}-${year}`;
+    };
 
     return (
         <div className="flex flex-col gap-6">
@@ -75,12 +99,12 @@ const Dashboard: React.FC = () => {
 
                 <div className="rounded-xl border border-gray-200 bg-white p-6 text-center">
                     <p className="text-sm font-medium text-custom-gray">Total Receipts</p>
-                    <p className="mt-2 text-3xl font-bold text-slate-900">{transactions? transactions.length : 0}</p>
+                    <p className="mt-2 text-3xl font-bold text-slate-900">{receipts ? receipts.length : 0}</p>
                 </div>
 
                 <div className="rounded-xl border border-gray-200 bg-white p-6 text-center">
                     <p className="text-sm font-medium text-custom-gray">Average Transaction Value</p>
-                    <p className="mt-2 text-3xl font-bold text-slate-900">GH₵{!averageTransaction? 0 : averageTransaction.toFixed(2)}</p>
+                    <p className="mt-2 text-3xl font-bold text-slate-900">GH₵{!averageReceipt ? 0 : averageReceipt.toFixed(2)}</p>
                 </div>
             </div>
 
@@ -194,15 +218,15 @@ const Dashboard: React.FC = () => {
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-gray-200">
-                            {transactions.map((transaction) => (
-                                <tr key={transaction.id}>
-                                    <td className="px-4 py-2 text-sm text-gray-700">{transaction.vendor}</td>
-                                    <td className="px-4 py-2 text-sm text-gray-700">{transaction.amount}</td>
-                                    <td className="px-4 py-2 text-sm text-gray-700">{transaction.date}</td>
-                                    <td className="px-4 py-2 text-sm text-gray-700">{transaction.category}</td>
+                            {receipts.map((receipt) => (
+                                <tr key={receipt.id}>
+                                    <td className="px-4 py-2 text-sm text-gray-700">{receipt.vendor_name}</td>
+                                    <td className="px-4 py-2 text-sm text-gray-700">{receipt.total_amount}</td>
+                                    <td className="px-4 py-2 text-sm text-gray-700">{receipt.category}</td>
+                                    <td className="px-4 py-2 text-sm text-gray-700">{formatDate(receipt.purchase_date)}</td>
                                 </tr>
                             ))}
-                            {transactions.length === 0 && (
+                            {receipts.length === 0 && (
                                 <tr>
                                     <td colSpan={4} className="px-4 py-6 text-center text-sm text-gray-400">
                                         No receipts added yet, add some receipts
